@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/navigation_home">
+
+    <fragment
+        android:id="@+id/navigation_home"
+        android:name="vn.edu.usth.uihealthcare.ui.theme.HomeFragment"
+
+        android:label="@string/title_home"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_heart"
+            app:destination="@id/navigation_heart" />
+        <action
+            android:id="@+id/action_steps"
+            app:destination="@id/navigation_step" />
+        <action
+            android:id="@+id/action_sleep"
+            app:destination="@id/navigation_sleep"/>
+        <action
+            android:id="@+id/action_test"
+            app:destination="@+id/navigation_test"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_my_profile"
+        android:name="vn.edu.usth.uihealthcare.ui.theme.MyProfileFragment"
+        android:label="@string/title_my_profile"
+        tools:layout="@layout/fragment_my_profile" />
+
+    <fragment
+        android:id="@+id/navigation_settings"
+        android:name="vn.edu.usth.uihealthcare.ui.theme.SettingsFragment"
+        android:label="@string/settings"
+        tools:layout="@layout/fragment_settings">
+        <action
+            android:id="@+id/action_measurement"
+            app:destination="@id/navigation_measurement" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_measurement"
+        android:name="vn.edu.usth.uihealthcare.ui.theme.MeasurementFragment"
+        android:label="Measurement Units"
+        tools:layout="@layout/fragment_measurement"/>
+
+    <fragment
+        android:id="@+id/navigation_heart"
+        android:name="vn.edu.usth.uihealthcare.ui.theme.HeartFragment"
+        android:label="Heart"
+        tools:layout="@layout/fragment_heart"/>
+
+<!--    <fragment-->
+<!--        android:id="@+id/navigation_test"-->
+<!--        android:name="vn.edu.usth.uihealthcare.ui.theme.TestDBFragment"-->
+<!--        android:label="Steps"-->
+<!--        tools:layout="@layout/recycle_view_testdb"/>-->
+
+    <fragment
+        android:id="@+id/navigation_sleep"
+        android:name="vn.edu.usth.uihealthcare.ui.theme.SleepFragment"
+        android:label="Sleep"
+        tools:layout="@layout/fragment_sleep"/>
+
+    <fragment
+        android:id="@+id/navigation_step"
+        android:name="vn.edu.usth.uihealthcare.ui.theme.StepFragment"
+        android:label="Step"
+        tools:layout="@layout/fragment_step"/>
+
+</navigation>
