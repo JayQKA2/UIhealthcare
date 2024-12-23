@@ -27,29 +27,29 @@ class HomeFragment : Fragment() {
         notificationIcon = view.findViewById(R.id.notificationIcon)
         diagnosticButton = view.findViewById(R.id.diagnosticButton)
 
-//        diagnosticButton.setOnClickListener { v: View ->
-//            val navController: NavController = Navigation.findNavController(v)
-//            navController.navigate(R.id.action_test)
-//        }
-//
-//        notificationIcon.setOnClickListener {
-//            Log.d(TAG, "Notifications")
-//        }
-//
-//        view.findViewById<View>(R.id.steps).setOnClickListener { v: View ->
-//            val navController: NavController = Navigation.findNavController(v)
-//            navController.navigate(R.id.action_steps)
-//        }
-//
-//        view.findViewById<View>(R.id.heart_pressure).setOnClickListener { v: View ->
-//            val navController: NavController = Navigation.findNavController(v)
-//            navController.navigate(R.id.action_heart)
-//        }
-//
-//        view.findViewById<View>(R.id.sleepCard).setOnClickListener { v: View ->
-//            val navController: NavController = Navigation.findNavController(v)
-//            navController.navigate(R.id.action_sleep)
-//        }
+        diagnosticButton.setOnClickListener { v: View ->
+            val navController: NavController = Navigation.findNavController(v)
+            navController.navigate(R.id.action_test)
+        }
+
+        notificationIcon.setOnClickListener {
+            Log.d(TAG, "Notifications")
+        }
+
+        view.findViewById<View>(R.id.steps).setOnClickListener { v: View ->
+            val navController: NavController = Navigation.findNavController(v)
+            navController.navigate(R.id.action_steps)
+        }
+
+        view.findViewById<View>(R.id.heart_pressure).setOnClickListener { v: View ->
+            val navController: NavController = Navigation.findNavController(v)
+            navController.navigate(R.id.action_heart)
+        }
+
+        view.findViewById<View>(R.id.sleepCard).setOnClickListener { v: View ->
+            val navController: NavController = Navigation.findNavController(v)
+            navController.navigate(R.id.action_sleep)
+        }
 
         return view
     }
