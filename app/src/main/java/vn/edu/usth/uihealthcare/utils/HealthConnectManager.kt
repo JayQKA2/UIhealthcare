@@ -1,6 +1,8 @@
 package vn.edu.usth.uihealthcare.utils
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContract
@@ -11,6 +13,7 @@ import androidx.health.connect.client.HealthConnectFeatures
 import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.changes.Change
 import androidx.health.connect.client.feature.ExperimentalFeatureAvailabilityApi
+import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.Record
@@ -34,17 +37,43 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.util.concurrent.TimeUnit
 
-// The minimum android level that can use Health Connect
 const val MIN_SUPPORTED_SDK = Build.VERSION_CODES.O_MR1
 
 class HealthConnectManager(private val context: Context) {
     private val healthConnectClient by lazy { HealthConnectClient.getOrCreate(context) }
-
     var availability = mutableStateOf(HealthConnectAvailability.NOT_SUPPORTED)
         private set
 
+    val PERMISSIONS = setOf(
+        HealthPermission.getReadPermission(StepsRecord::class),
+        HealthPermission.getReadPermission(ExerciseSessionRecord::class),
+        HealthPermission.getWritePermission(WeightRecord::class)
+    )
+
     init {
         checkAvailability()
+    }
+
+    fun checkForHealthConnectInstalled(context: Context):Int {
+        val availabilityStatus =
+            HealthConnectClient.getSdkStatus(context, "com.google.android.apps.healthdata")
+        when (availabilityStatus) {
+            HealthConnectClient.SDK_UNAVAILABLE -> {
+                val intent = Intent(Intent.ACTION_VIEW).apply {
+                    data = Uri.parse("https://play.google.com/store/apps/details?id=com.google.android.apps.healthdata")
+                }
+                context.startActivity(intent)
+            }
+            HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED -> {
+            }
+            SDK_AVAILABLE -> {
+                val intent = context.packageManager.getLaunchIntentForPackage("com.google.android.apps.healthdata")
+                if (intent != null) {
+                    context.startActivity(intent)
+                }
+            }
+        }
+        return availabilityStatus
     }
 
     fun checkAvailability() {
@@ -54,6 +83,15 @@ class HealthConnectManager(private val context: Context) {
             else -> HealthConnectAvailability.NOT_SUPPORTED
         }
     }
+
+    suspend fun checkPermissions(): Boolean {
+        val granted = healthConnectClient.permissionController.getGrantedPermissions()
+        if (granted != null) {
+            return granted.containsAll(PERMISSIONS)
+        }
+        return false
+    }
+
 
     @OptIn(ExperimentalFeatureAvailabilityApi::class)
     fun isFeatureAvailable(feature: Int): Boolean{
@@ -95,9 +133,7 @@ class HealthConnectManager(private val context: Context) {
         return response.records
     }
 
-    /**
-     * TODO: Returns the weekly average of [WeightRecord]s.
-     */
+
     suspend fun computeWeeklyAverage(start: Instant, end: Instant): Mass? {
         val request = AggregateRequest(
             metrics = setOf(WeightRecord.WEIGHT_AVG),
@@ -172,13 +208,7 @@ class HealthConnectManager(private val context: Context) {
         )
     }
 
-    /**
-     * TODO: Reads aggregated data and raw data for selected data types, for a given [ExerciseSessionRecord].
-     */
 
-    /**
-     * Obtains a changes token for the specified record types.
-     */
     suspend fun getChangesToken(): String {
         return healthConnectClient.getChangesToken(
             ChangesTokenRequest(
