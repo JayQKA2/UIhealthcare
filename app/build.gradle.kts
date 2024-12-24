@@ -84,7 +84,7 @@ dependencies {
 
     implementation ("com.google.android.gms:play-services-wearable:19.0.0")
 
-    implementation ("androidx.health.connect:connect-client:1.0.0-alpha11")
+    implementation ("androidx.health.connect:connect-client:1.1.0-alpha10")
 
     implementation ("androidx.work:work-runtime:2.10.0")
 
