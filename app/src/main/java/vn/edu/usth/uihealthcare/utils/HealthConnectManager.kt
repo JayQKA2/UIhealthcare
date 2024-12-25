@@ -27,6 +27,8 @@ import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.health.connect.client.units.Energy
 import androidx.health.connect.client.units.Mass
+import androidx.health.connect.client.readRecord
+import androidx.health.connect.client.records.SleepSessionRecord
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import java.io.IOException
@@ -37,17 +39,22 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.util.concurrent.TimeUnit
 
+
 const val MIN_SUPPORTED_SDK = Build.VERSION_CODES.O_MR1
 
 class HealthConnectManager(private val context: Context) {
     private val healthConnectClient by lazy { HealthConnectClient.getOrCreate(context) }
-    var availability = mutableStateOf(HealthConnectAvailability.NOT_SUPPORTED)
+    private var availability = mutableStateOf(HealthConnectAvailability.NOT_SUPPORTED)
         private set
 
-    val PERMISSIONS = setOf(
+    val permission = setOf(
         HealthPermission.getReadPermission(StepsRecord::class),
         HealthPermission.getReadPermission(ExerciseSessionRecord::class),
-        HealthPermission.getWritePermission(WeightRecord::class)
+        HealthPermission.getWritePermission(WeightRecord::class),
+        HealthPermission.getReadPermission(WeightRecord::class),
+        HealthPermission.getReadPermission(HeartRateRecord::class),
+        HealthPermission.getReadPermission(SleepSessionRecord::class)
+
     )
 
     init {
@@ -76,7 +83,7 @@ class HealthConnectManager(private val context: Context) {
         return availabilityStatus
     }
 
-    fun checkAvailability() {
+    private fun checkAvailability() {
         availability.value = when {
             HealthConnectClient.getSdkStatus(context) == SDK_AVAILABLE -> HealthConnectAvailability.INSTALLED
             isSupported() -> HealthConnectAvailability.NOT_INSTALLED
@@ -87,7 +94,7 @@ class HealthConnectManager(private val context: Context) {
     suspend fun checkPermissions(): Boolean {
         val granted = healthConnectClient.permissionController.getGrantedPermissions()
         if (granted != null) {
-            return granted.containsAll(PERMISSIONS)
+            return granted.containsAll(permission)
         }
         return false
     }
@@ -107,6 +114,10 @@ class HealthConnectManager(private val context: Context) {
     fun requestPermissionsActivityContract(): ActivityResultContract<Set<String>, Set<String>> {
         return PermissionController.createRequestPermissionResultContract()
     }
+
+    /**
+     * TODO: Build [WeightRecord].
+     */
 
     suspend fun writeWeightInput(weightInput: Double) {
         val time = ZonedDateTime.now().withNano(0)
@@ -184,6 +195,7 @@ class HealthConnectManager(private val context: Context) {
     /**
      * TODO: Build [HeartRateRecord].
      */
+
     private fun buildHeartRateSeries(
         sessionStartTime: ZonedDateTime,
         sessionEndTime: ZonedDateTime,
@@ -208,6 +220,33 @@ class HealthConnectManager(private val context: Context) {
         )
     }
 
+    /**
+     * TODO: Build [SleepSessionRecord].
+     */
+
+    suspend fun writeSleepSession(healthConnectClient: HealthConnectClient, start: ZonedDateTime, end: ZonedDateTime) {
+        val sleepSessionRecord = SleepSessionRecord(
+            startTime = start.toInstant(),
+            startZoneOffset = start.offset,
+            endTime = end.toInstant(),
+            endZoneOffset = end.offset
+        )
+        healthConnectClient.insertRecords(listOf(sleepSessionRecord))
+    }
+
+    suspend fun readSleepSession(healthConnectClient: HealthConnectClient, start: Instant, end: Instant): List<SleepSessionRecord> {
+        val request = ReadRecordsRequest(
+            recordType = SleepSessionRecord::class,
+            timeRangeFilter = TimeRangeFilter.between(start, end)
+        )
+        val response = healthConnectClient.readRecords(request)
+        val sleepRecords = response.records
+        for (sleepRecord in sleepRecords) {
+            println("Sleep record: ${sleepRecord.startTime} to ${sleepRecord.endTime}")
+        }
+        return sleepRecords
+    }
+
 
     suspend fun getChangesToken(): String {
         return healthConnectClient.getChangesToken(
@@ -223,9 +262,7 @@ class HealthConnectManager(private val context: Context) {
         )
     }
 
-    /**
-     * Retrieve changes from a changes token.
-     */
+
     suspend fun getChanges(token: String): Flow<ChangesMessage> = flow {
         var nextChangesToken = token
         do {
@@ -254,7 +291,6 @@ class HealthConnectManager(private val context: Context) {
 
     private fun isSupported() = Build.VERSION.SDK_INT >= MIN_SUPPORTED_SDK
 
-    // Represents the two types of messages that can be sent in a Changes flow.
     sealed class ChangesMessage {
         data class NoMoreChanges(val nextChangesToken: String) : ChangesMessage()
         data class ChangeList(val changes: List<Change>) : ChangesMessage()
