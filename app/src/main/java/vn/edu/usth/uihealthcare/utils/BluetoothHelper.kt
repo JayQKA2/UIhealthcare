@@ -46,8 +46,17 @@ fun getConnectedDevices(): List<BluetoothDevice>? {
 
     // Kiểm tra quyền
     if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
-        val bluetoothProfile = bluetoothManager.getConnectedDevices(BluetoothProfile.GATT)
-        connectedDevices.addAll(bluetoothProfile)
+        // Lấy danh sách thiết bị đang kết nối qua GATT
+        val gattDevices = bluetoothManager.getConnectedDevices(BluetoothProfile.GATT)
+        Log.d("BluetoothProfile", "GATT Connected devices: $gattDevices") // Log danh sách GATT
+
+        // Nếu bạn cũng muốn kiểm tra các profile khác, hãy thêm vào đây
+        val a2dpDevices = bluetoothManager.getConnectedDevices(BluetoothProfile.A2DP)
+        Log.d("BluetoothProfile", "A2DP Connected devices: $a2dpDevices") // Log danh sách A2DP
+
+        // Thêm thiết bị vào danh sách kết nối
+        connectedDevices.addAll(gattDevices)
+        connectedDevices.addAll(a2dpDevices)
     } else {
         Log.d("BluetoothPermission", "Bluetooth permission is not granted")
         return null // Trả về null nếu không có quyền
