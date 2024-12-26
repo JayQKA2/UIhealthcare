@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.health.connect.client.HealthConnectClient
 import androidx.lifecycle.lifecycleScope
@@ -116,8 +117,8 @@ class MainActivity : AppCompatActivity() {
         val bluetoothHelper = BluetoothHelper(this)
 
         if (bluetoothHelper.isBluetoothSupported()) {
-            if (bluetoothHelper.bluetoothAdapter?.isEnabled == true) {
-                bluetoothHelper.startBluetoothScan()
+            if (bluetoothHelper.isBluetoothEnabled()) {
+                displayConnectedDevices()
             } else {
                 Toast.makeText(this, "Please enable Bluetooth", Toast.LENGTH_SHORT).show()
             }
@@ -190,6 +191,39 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+    private fun displayConnectedDevices() {
+        val bluetoothHelper = BluetoothHelper(this)
+
+        // Kiểm tra xem Bluetooth có được bật không
+        if (bluetoothHelper.isBluetoothEnabled()) {
+            // Kiểm tra quyền Bluetooth
+            if (ActivityCompat.checkSelfPermission(this, "android.permission.BLUETOOTH_CONNECT") == PackageManager.PERMISSION_GRANTED) {
+                val connectedDevices = bluetoothHelper.getConnectedDevices()
+                if (connectedDevices != null && connectedDevices.isNotEmpty()) {
+                    val devicesList = connectedDevices.joinToString("\n") { device ->
+                        "${device.name} - ${device.address}"
+                    }
+                    Toast.makeText(this, "Connected Devices:\n$devicesList", Toast.LENGTH_LONG).show()
+                } else {
+                    Toast.makeText(this, "No connected devices found", Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                Toast.makeText(this, "Bluetooth permission is not granted", Toast.LENGTH_SHORT).show()
+                // Có thể yêu cầu quyền ở đây nếu cần
+                requestBluetoothPermission()
+            }
+        } else {
+            Toast.makeText(this, "Bluetooth is not enabled", Toast.LENGTH_SHORT).show()
+        }
+    }
+    private fun requestBluetoothPermission() {
+        // Yêu cầu quyền Bluetooth nếu chưa được cấp
+        requestPermissionLauncher.launch(arrayOf(
+            "android.permission.BLUETOOTH_CONNECT",
+            "android.permission.BLUETOOTH_SCAN"
+        ))
+    }
+
 
     override fun onSupportNavigateUp(): Boolean {
         return navController.navigateUp() || super.onSupportNavigateUp()
