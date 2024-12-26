@@ -53,22 +53,31 @@
         android:label="Heart"
         tools:layout="@layout/fragment_heart"/>
 
-<!--    <fragment-->
-<!--        android:id="@+id/navigation_test"-->
-<!--        android:name="vn.edu.usth.uihealthcare.ui.theme.TestDBFragment"-->
-<!--        android:label="Steps"-->
-<!--        tools:layout="@layout/recycle_view_testdb"/>-->
+    <fragment
+        android:id="@+id/navigation_test"
+        android:label="Steps"
+        tools:layout="@layout/recycle_view_testdb"/>
 
     <fragment
         android:id="@+id/navigation_sleep"
         android:name="vn.edu.usth.uihealthcare.ui.theme.SleepFragment"
         android:label="Sleep"
-        tools:layout="@layout/fragment_sleep"/>
+        tools:layout="@layout/fragment_sleep">
+        <action
+            android:id="@+id/action_sleep2"
+            app:destination="@id/navigation_sleep2"/>
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_step"
         android:name="vn.edu.usth.uihealthcare.ui.theme.StepFragment"
         android:label="Step"
         tools:layout="@layout/fragment_step"/>
+
+    <fragment
+        android:id="@+id/navigation_sleep2"
+        android:name="vn.edu.usth.uihealthcare.ui.theme.Sleep2Fragment"
+        android:label="weekly check"
+        tools:layout="@layout/fragment_sleep2"/>
 
 </navigation>
