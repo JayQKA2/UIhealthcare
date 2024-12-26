@@ -26,4 +26,7 @@ class BluetoothHelper(private val context: Context) {
             null  // Trả về null nếu không có quyền
         }
     }
+    fun isDeviceConnected(deviceAddress: String): Boolean {
+        return getConnectedDevices()?.any { it.address == deviceAddress } == true
+    }
 }

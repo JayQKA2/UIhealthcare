@@ -47,6 +47,7 @@ class MainActivity : AppCompatActivity() {
         setupUI()
         setupNavigation()
         setupBluetooth()
+        checkIfDeviceIsConnected("")
         enableBluetoothLauncher
 
         lifecycleScope.launch {
@@ -222,6 +223,24 @@ class MainActivity : AppCompatActivity() {
             "android.permission.BLUETOOTH_CONNECT",
             "android.permission.BLUETOOTH_SCAN"
         ))
+    }
+    private fun checkIfDeviceIsConnected(deviceAddress: String) {
+        val bluetoothHelper = BluetoothHelper(this)
+
+        if (bluetoothHelper.isBluetoothEnabled()) {
+            if (ActivityCompat.checkSelfPermission(this, "android.permission.BLUETOOTH_CONNECT") == PackageManager.PERMISSION_GRANTED) {
+                if (bluetoothHelper.isDeviceConnected(deviceAddress)) {
+                    Toast.makeText(this, "Device $deviceAddress is connected", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "Device $deviceAddress is not connected", Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                Toast.makeText(this, "Bluetooth permission is not granted", Toast.LENGTH_SHORT).show()
+                requestBluetoothPermission()
+            }
+        } else {
+            Toast.makeText(this, "Bluetooth is not enabled", Toast.LENGTH_SHORT).show()
+        }
     }
 
 
