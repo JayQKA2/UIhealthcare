@@ -23,7 +23,6 @@ import vn.edu.usth.uihealthcare.utils.BluetoothHelper
 import vn.edu.usth.uihealthcare.utils.HealthConnectManager
 
 class MainActivity : AppCompatActivity() {
-
     private lateinit var navController: NavController
     private lateinit var bottomNavigationBar: BottomNavigationView
     private lateinit var toolbar: Toolbar
@@ -36,6 +35,24 @@ class MainActivity : AppCompatActivity() {
         R.id.navigation_measurement,
         R.id.navigation_sleep2
     )
+
+    @SuppressLint("MissingPermission")
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        checkAndRequestPermissions()
+
+        setupUI()
+        setupNavigation()
+        setupBluetooth()
+        enableBluetoothLauncher
+
+        lifecycleScope.launch {
+            setupHealthConnect()
+        }
+
+    }
 
     private val healthConnectManager by lazy {
         HealthConnectManager(this)
@@ -59,21 +76,23 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-    @SuppressLint("MissingPermission")
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
 
-        checkAndRequestPermissions()
-
-        setupUI()
-        setupNavigation()
-        setupBluetooth()
-
-        lifecycleScope.launch {
-            setupHealthConnect()
+    private fun showMissingPermissions(permissions: List<String>) {
+        val missingPermissions = permissions.joinToString(separator = "\n") { permission ->
+            when (permission) {
+                "android.permission.BLUETOOTH_SCAN" -> "Bluetooth Scan"
+                "android.permission.BLUETOOTH_CONNECT" -> "Bluetooth Connect"
+                "android.permission.ACCESS_FINE_LOCATION" -> "Access Fine Location"
+                "android.permission.ACCESS_COARSE_LOCATION" -> "Access Coarse Location"
+                "android.permission.INTERNET" -> "Internet Access"
+                else -> permission
+            }
         }
-
+        Toast.makeText(
+            this,
+            "Missing permissions:\n$missingPermissions",
+            Toast.LENGTH_LONG
+        ).show()
     }
 
     private suspend fun setupHealthConnect() {
@@ -110,22 +129,29 @@ class MainActivity : AppCompatActivity() {
     private fun checkAndRequestPermissions() {
         val permissionsToRequest = mutableListOf<String>()
 
-        if (ContextCompat.checkSelfPermission(this, "Manifest.permission.BLUETOOTH_SCAN") != PackageManager.PERMISSION_GRANTED) {
-            permissionsToRequest.add("Manifest.permission.BLUETOOTH_SCAN")
+        if (ContextCompat.checkSelfPermission(this, "android.permission.BLUETOOTH_SCAN") != PackageManager.PERMISSION_GRANTED) {
+            permissionsToRequest.add("android.permission.BLUETOOTH_SCAN")
         }
 
-        if (ContextCompat.checkSelfPermission(this, "Manifest.permission.BLUETOOTH_CONNECT") != PackageManager.PERMISSION_GRANTED) {
-            permissionsToRequest.add("Manifest.permission.BLUETOOTH_CONNECT")
+        if (ContextCompat.checkSelfPermission(this, "android.permission.BLUETOOTH_CONNECT") != PackageManager.PERMISSION_GRANTED) {
+            permissionsToRequest.add("android.permission.BLUETOOTH_CONNECT")
         }
 
-        if (ContextCompat.checkSelfPermission(this, "Manifest.permission.NEARBY_DEVICES") != PackageManager.PERMISSION_GRANTED) {
-            permissionsToRequest.add("Manifest.permission.NEARBY_DEVICES")
+
+        if (ContextCompat.checkSelfPermission(this, "android.permission.ACCESS_FINE_LOCATION") != PackageManager.PERMISSION_GRANTED) {
+            permissionsToRequest.add("android.permission.ACCESS_FINE_LOCATION")
+        }
+
+        if (ContextCompat.checkSelfPermission(this, "android.permission.INTERNET") != PackageManager.PERMISSION_GRANTED) {
+            permissionsToRequest.add("android.permission.INTERNET")
         }
 
         if (permissionsToRequest.isNotEmpty()) {
+            showMissingPermissions(permissionsToRequest)
             requestPermissionLauncher.launch(permissionsToRequest.toTypedArray())
         }
     }
+
 
     private fun requestPermissions() {
         requestPermissionLauncher.launch(healthConnectManager.permission.toTypedArray())

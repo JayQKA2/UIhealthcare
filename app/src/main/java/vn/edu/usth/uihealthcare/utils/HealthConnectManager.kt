@@ -45,7 +45,6 @@ const val MIN_SUPPORTED_SDK = Build.VERSION_CODES.O_MR1
 class HealthConnectManager(private val context: Context) {
     private val healthConnectClient by lazy { HealthConnectClient.getOrCreate(context) }
     private var availability = mutableStateOf(HealthConnectAvailability.NOT_SUPPORTED)
-        private set
 
     val permission = setOf(
         HealthPermission.getReadPermission(StepsRecord::class),
@@ -295,6 +294,7 @@ class HealthConnectManager(private val context: Context) {
         data class NoMoreChanges(val nextChangesToken: String) : ChangesMessage()
         data class ChangeList(val changes: List<Change>) : ChangesMessage()
     }
+
 }
 
 enum class HealthConnectAvailability {
