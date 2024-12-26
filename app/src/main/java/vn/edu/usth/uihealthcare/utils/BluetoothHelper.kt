@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
 import android.content.Context
 import android.content.pm.PackageManager
+import android.util.Log
 import androidx.core.app.ActivityCompat
 
 class BluetoothHelper(private val context: Context) {
@@ -32,19 +33,26 @@ class BluetoothHelper(private val context: Context) {
 //    fun isDeviceConnected(deviceAddress: String): Boolean {
 //        return getConnectedDevices()?.any { it.address == deviceAddress } == true
 //    }
-    fun getConnectedDevices(): List<BluetoothDevice>? {
-        val connectedDevices = mutableListOf<BluetoothDevice>()
-        val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+fun getConnectedDevices(): List<BluetoothDevice>? {
+    val connectedDevices = mutableListOf<BluetoothDevice>()
+    val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+    val bluetoothAdapter = bluetoothManager.adapter
 
-        // Kiểm tra quyền
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
-            val bluetoothProfile = bluetoothManager.getConnectedDevices(BluetoothProfile.GATT)
-            connectedDevices.addAll(bluetoothProfile)
-        } else {
-            // Trả về null hoặc xử lý theo cách khác nếu không có quyền
-            return null
-        }
-
-        return connectedDevices
+    // Kiểm tra Bluetooth có bật hay không
+    if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled) {
+        Log.d("BluetoothStatus", "Bluetooth is not enabled")
+        return null // Bluetooth không được bật
     }
+
+    // Kiểm tra quyền
+    if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
+        val bluetoothProfile = bluetoothManager.getConnectedDevices(BluetoothProfile.GATT)
+        connectedDevices.addAll(bluetoothProfile)
+    } else {
+        Log.d("BluetoothPermission", "Bluetooth permission is not granted")
+        return null // Trả về null nếu không có quyền
+    }
+
+    return connectedDevices
+}
 }

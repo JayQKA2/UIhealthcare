@@ -254,7 +254,7 @@ private fun isDeviceCurrentlyConnected(deviceAddress: String) {
             // Lấy danh sách các thiết bị đang kết nối
             val connectedDevices: List<BluetoothDevice>? = bluetoothHelper.getConnectedDevices()
 
-            if (connectedDevices != null) {
+            if (connectedDevices != null && connectedDevices.isNotEmpty()) {
                 // Ghi lại tất cả các thiết bị đang kết nối
                 connectedDevices.forEach { device ->
                     try {
@@ -273,6 +273,7 @@ private fun isDeviceCurrentlyConnected(deviceAddress: String) {
                     Toast.makeText(this, "Device $deviceAddress is not currently connected", Toast.LENGTH_SHORT).show()
                 }
             } else {
+                Log.d("ConnectedDevices", "No connected devices found")
                 Toast.makeText(this, "No connected devices found", Toast.LENGTH_SHORT).show()
             }
         } else {
