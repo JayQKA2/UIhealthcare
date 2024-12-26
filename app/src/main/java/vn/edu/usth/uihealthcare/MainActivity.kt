@@ -48,6 +48,7 @@ class MainActivity : AppCompatActivity() {
         setupNavigation()
         setupBluetooth()
         checkIfDeviceIsConnected("")
+        isDeviceCurrentlyConnected("")
         enableBluetoothLauncher
 
         lifecycleScope.launch {
@@ -233,6 +234,28 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(this, "Device $deviceAddress is connected", Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(this, "Device $deviceAddress is not connected", Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                Toast.makeText(this, "Bluetooth permission is not granted", Toast.LENGTH_SHORT).show()
+                requestBluetoothPermission()
+            }
+        } else {
+            Toast.makeText(this, "Bluetooth is not enabled", Toast.LENGTH_SHORT).show()
+        }
+    }
+    private fun isDeviceCurrentlyConnected(deviceAddress: String) {
+        val bluetoothHelper = BluetoothHelper(this)
+
+        if (bluetoothHelper.isBluetoothEnabled()) {
+            val connectedDevices = bluetoothHelper.getConnectedDevices()
+
+            if (connectedDevices != null) {
+                val isConnected = connectedDevices.any { it.address == deviceAddress }
+
+                if (isConnected) {
+                    Toast.makeText(this, "Device $deviceAddress is currently connected", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "Device $deviceAddress is not currently connected", Toast.LENGTH_SHORT).show()
                 }
             } else {
                 Toast.makeText(this, "Bluetooth permission is not granted", Toast.LENGTH_SHORT).show()
