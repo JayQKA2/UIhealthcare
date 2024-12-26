@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity() {
         setupUI()
         setupNavigation()
         setupBluetooth()
-        checkIfDeviceIsConnected("")
+//        checkIfDeviceIsConnected("")
         isDeviceCurrentlyConnected("")
         enableBluetoothLauncher
 
@@ -120,7 +120,7 @@ class MainActivity : AppCompatActivity() {
 
         if (bluetoothHelper.isBluetoothSupported()) {
             if (bluetoothHelper.isBluetoothEnabled()) {
-                displayConnectedDevices()
+//                displayConnectedDevices()
             } else {
                 Toast.makeText(this, "Please enable Bluetooth", Toast.LENGTH_SHORT).show()
             }
@@ -193,31 +193,31 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-    private fun displayConnectedDevices() {
-        val bluetoothHelper = BluetoothHelper(this)
-
-        // Kiểm tra xem Bluetooth có được bật không
-        if (bluetoothHelper.isBluetoothEnabled()) {
-            // Kiểm tra quyền Bluetooth
-            if (ActivityCompat.checkSelfPermission(this, "android.permission.BLUETOOTH_CONNECT") == PackageManager.PERMISSION_GRANTED) {
-                val connectedDevices = bluetoothHelper.getConnectedDevices()
-                if (connectedDevices != null && connectedDevices.isNotEmpty()) {
-                    val devicesList = connectedDevices.joinToString("\n") { device ->
-                        "${device.name} - ${device.address}"
-                    }
-                    Toast.makeText(this, "Connected Devices:\n$devicesList", Toast.LENGTH_LONG).show()
-                } else {
-                    Toast.makeText(this, "No connected devices found", Toast.LENGTH_SHORT).show()
-                }
-            } else {
-                Toast.makeText(this, "Bluetooth permission is not granted", Toast.LENGTH_SHORT).show()
-                // Có thể yêu cầu quyền ở đây nếu cần
-                requestBluetoothPermission()
-            }
-        } else {
-            Toast.makeText(this, "Bluetooth is not enabled", Toast.LENGTH_SHORT).show()
-        }
-    }
+//    private fun displayConnectedDevices() {
+//        val bluetoothHelper = BluetoothHelper(this)
+//
+//        // Kiểm tra xem Bluetooth có được bật không
+//        if (bluetoothHelper.isBluetoothEnabled()) {
+//            // Kiểm tra quyền Bluetooth
+//            if (ActivityCompat.checkSelfPermission(this, "android.permission.BLUETOOTH_CONNECT") == PackageManager.PERMISSION_GRANTED) {
+//                val connectedDevices = bluetoothHelper.getConnectedDevices()
+//                if (connectedDevices != null && connectedDevices.isNotEmpty()) {
+//                    val devicesList = connectedDevices.joinToString("\n") { device ->
+//                        "${device.name} - ${device.address}"
+//                    }
+//                    Toast.makeText(this, "Connected Devices:\n$devicesList", Toast.LENGTH_LONG).show()
+//                } else {
+//                    Toast.makeText(this, "No connected devices found", Toast.LENGTH_SHORT).show()
+//                }
+//            } else {
+//                Toast.makeText(this, "Bluetooth permission is not granted", Toast.LENGTH_SHORT).show()
+//                // Có thể yêu cầu quyền ở đây nếu cần
+//                requestBluetoothPermission()
+//            }
+//        } else {
+//            Toast.makeText(this, "Bluetooth is not enabled", Toast.LENGTH_SHORT).show()
+//        }
+//    }
     private fun requestBluetoothPermission() {
         // Yêu cầu quyền Bluetooth nếu chưa được cấp
         requestPermissionLauncher.launch(arrayOf(
@@ -225,24 +225,24 @@ class MainActivity : AppCompatActivity() {
             "android.permission.BLUETOOTH_SCAN"
         ))
     }
-    private fun checkIfDeviceIsConnected(deviceAddress: String) {
-        val bluetoothHelper = BluetoothHelper(this)
-
-        if (bluetoothHelper.isBluetoothEnabled()) {
-            if (ActivityCompat.checkSelfPermission(this, "android.permission.BLUETOOTH_CONNECT") == PackageManager.PERMISSION_GRANTED) {
-                if (bluetoothHelper.isDeviceConnected(deviceAddress)) {
-                    Toast.makeText(this, "Device $deviceAddress is connected", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(this, "Device $deviceAddress is not connected", Toast.LENGTH_SHORT).show()
-                }
-            } else {
-                Toast.makeText(this, "Bluetooth permission is not granted", Toast.LENGTH_SHORT).show()
-                requestBluetoothPermission()
-            }
-        } else {
-            Toast.makeText(this, "Bluetooth is not enabled", Toast.LENGTH_SHORT).show()
-        }
-    }
+//    private fun checkIfDeviceIsConnected(deviceAddress: String) {
+//        val bluetoothHelper = BluetoothHelper(this)
+//
+//        if (bluetoothHelper.isBluetoothEnabled()) {
+//            if (ActivityCompat.checkSelfPermission(this, "android.permission.BLUETOOTH_CONNECT") == PackageManager.PERMISSION_GRANTED) {
+//                if (bluetoothHelper.isDeviceConnected(deviceAddress)) {
+//                    Toast.makeText(this, "Device $deviceAddress is connected", Toast.LENGTH_SHORT).show()
+//                } else {
+//                    Toast.makeText(this, "Device $deviceAddress is not connected", Toast.LENGTH_SHORT).show()
+//                }
+//            } else {
+//                Toast.makeText(this, "Bluetooth permission is not granted", Toast.LENGTH_SHORT).show()
+//                requestBluetoothPermission()
+//            }
+//        } else {
+//            Toast.makeText(this, "Bluetooth is not enabled", Toast.LENGTH_SHORT).show()
+//        }
+//    }
     private fun isDeviceCurrentlyConnected(deviceAddress: String) {
         val bluetoothHelper = BluetoothHelper(this)
 

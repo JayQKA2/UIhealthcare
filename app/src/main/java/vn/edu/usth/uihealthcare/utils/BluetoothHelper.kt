@@ -29,9 +29,9 @@ class BluetoothHelper(private val context: Context) {
 //            null  // Trả về null nếu không có quyền
 //        }
 //    }
-    fun isDeviceConnected(deviceAddress: String): Boolean {
-        return getConnectedDevices()?.any { it.address == deviceAddress } == true
-    }
+//    fun isDeviceConnected(deviceAddress: String): Boolean {
+//        return getConnectedDevices()?.any { it.address == deviceAddress } == true
+//    }
     fun getConnectedDevices(): List<BluetoothDevice>? {
         val connectedDevices = mutableListOf<BluetoothDevice>()
         val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
