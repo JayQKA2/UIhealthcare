@@ -2,6 +2,7 @@ package vn.edu.usth.uihealthcare
 
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -22,6 +23,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.launch
 import vn.edu.usth.uihealthcare.utils.BluetoothHelper
 import vn.edu.usth.uihealthcare.utils.HealthConnectManager
+import android.Manifest
 
 class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
@@ -243,14 +245,27 @@ class MainActivity : AppCompatActivity() {
 //            Toast.makeText(this, "Bluetooth is not enabled", Toast.LENGTH_SHORT).show()
 //        }
 //    }
-    private fun isDeviceCurrentlyConnected(deviceAddress: String) {
-        val bluetoothHelper = BluetoothHelper(this)
+private fun isDeviceCurrentlyConnected(deviceAddress: String) {
+    val bluetoothHelper = BluetoothHelper(this)
 
-        if (bluetoothHelper.isBluetoothEnabled()) {
-            val connectedDevices = bluetoothHelper.getConnectedDevices()
+    if (bluetoothHelper.isBluetoothEnabled()) {
+        // Kiểm tra quyền Bluetooth
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
+            // Lấy danh sách các thiết bị đang kết nối
+            val connectedDevices: List<BluetoothDevice>? = bluetoothHelper.getConnectedDevices()
 
             if (connectedDevices != null) {
-                val isConnected = connectedDevices.any { it.address == deviceAddress }
+                // Ghi lại tất cả các thiết bị đang kết nối
+                connectedDevices.forEach { device ->
+                    try {
+                        Log.d("ConnectedDevice", "Device: ${device.name}, Address: ${device.address}")
+                    } catch (e: SecurityException) {
+                        Log.e("BluetoothError", "Permission not granted: ${e.message}")
+                    }
+                }
+
+                // Kiểm tra xem thiết bị cụ thể có đang kết nối hay không
+                val isConnected = connectedDevices.any { it.address.equals(deviceAddress, ignoreCase = true) }
 
                 if (isConnected) {
                     Toast.makeText(this, "Device $deviceAddress is currently connected", Toast.LENGTH_SHORT).show()
@@ -258,13 +273,17 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(this, "Device $deviceAddress is not currently connected", Toast.LENGTH_SHORT).show()
                 }
             } else {
-                Toast.makeText(this, "Bluetooth permission is not granted", Toast.LENGTH_SHORT).show()
-                requestBluetoothPermission()
+                Toast.makeText(this, "No connected devices found", Toast.LENGTH_SHORT).show()
             }
         } else {
-            Toast.makeText(this, "Bluetooth is not enabled", Toast.LENGTH_SHORT).show()
+            // Yêu cầu quyền nếu chưa được cấp
+            Toast.makeText(this, "Bluetooth permission is not granted", Toast.LENGTH_SHORT).show()
+            requestBluetoothPermission() // Đảm bảo phương thức này đã được định nghĩa
         }
+    } else {
+        Toast.makeText(this, "Bluetooth is not enabled", Toast.LENGTH_SHORT).show()
     }
+}
 
 
     override fun onSupportNavigateUp(): Boolean {
