@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    kotlin("kapt")
 }
 
 android {
@@ -63,6 +64,8 @@ dependencies {
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.room.common)
+    implementation(libs.androidx.room.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -87,5 +90,10 @@ dependencies {
     implementation ("androidx.health.connect:connect-client:1.1.0-alpha10")
 
     implementation ("androidx.work:work-runtime:2.10.0")
+
+
+    implementation("androidx.room:room-runtime:2.5.0")
+    kapt("androidx.room:room-compiler:2.5.0")
+    implementation("androidx.room:room-ktx:2.5.0")
 
 }
