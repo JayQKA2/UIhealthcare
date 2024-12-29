@@ -107,5 +107,19 @@
         android:textColor="@android:color/black"
         android:textStyle="bold" />
 
+    <TextView
+        android:id="@+id/weight_display"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="88dp"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:text="Save Weight"
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/weight_input_edit_text" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

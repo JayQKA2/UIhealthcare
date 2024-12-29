@@ -24,3 +24,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "UI healthcare"
 include(":app")
+include(":ben10")

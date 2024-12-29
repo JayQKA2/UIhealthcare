@@ -14,6 +14,7 @@ import android.widget.Toast
 import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.health.connect.client.HealthConnectClient
@@ -21,7 +22,12 @@ import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.WeightRecord
 import androidx.health.connect.client.units.Mass
 import kotlinx.coroutines.launch
+import vn.edu.usth.uihealthcare.Data.DataProcessor.DataProcessor
+import vn.edu.usth.uihealthcare.Data.Entity.WeightEntity
+import vn.edu.usth.uihealthcare.Data.ViewModel.WeightViewModel
+import vn.edu.usth.uihealthcare.Data.ViewModel.WeightViewModelFactory
 import vn.edu.usth.uihealthcare.R
+import vn.edu.usth.uihealthcare.utils.HealthConnectManager
 import java.time.Instant
 import java.time.ZoneOffset
 import java.util.Calendar
@@ -31,6 +37,9 @@ class SleepFragment : Fragment() {
     private val handler = Handler(Looper.getMainLooper())
     private var healthConnectClient: HealthConnectClient? = null
 
+    private val weightViewModel: WeightViewModel by viewModels {
+        WeightViewModelFactory(HealthConnectManager(requireContext()))
+    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -69,7 +78,7 @@ class SleepFragment : Fragment() {
             if (weightInput.isNotEmpty()) {
                 val weight = weightInput.toDoubleOrNull()
                 if (weight != null && weight > 0) {
-                    saveWeightToHealthConnect(weight)
+                    saveWeight(weight)
                 } else {
                     Toast.makeText(context, "Please enter a valid weight.", Toast.LENGTH_SHORT).show()
                 }
@@ -81,28 +90,49 @@ class SleepFragment : Fragment() {
         return view
     }
 
-    private fun saveWeightToHealthConnect(weight: Double) {
+//    private fun saveWeightToHealthConnect(weight: Double) {
+//        lifecycleScope.launch {
+//            try {
+//                // Save weight to Health Connect
+//                val now = Instant.now()
+//                val weightRecord = WeightRecord(
+//                    weight = Mass.kilograms(weight),
+//                    time = now,
+//                    zoneOffset = ZoneOffset.UTC
+//                )
+//                healthConnectClient?.insertRecords(listOf(weightRecord))
+//                Log.d("SleepFragment", "WeightRecord inserted: $weightRecord")
+//
+//                // Save weight to Room database
+//                val weightEntity = WeightEntity(weight = weight.toFloat(), timestamp = now.toEpochMilli())
+//                weightViewModel.insertWeight(weightEntity)
+//                Log.d("SleepFragment", "WeightEntity inserted: $weightEntity")
+//
+//////                Toast.makeText(context, "Weight saved: $weight kg", Toast.LENGTH_SHORT).show()
+//////                view?.findViewById<Button>(R.id.save_weight_button)?.text = "Weight Saved"
+////
+////                view?.findViewById<TextView>(R.id.weight_display)?.text = "Weight: $weight kg"
+////                Toast.makeText(context, "Weight saved: $weight kg", Toast.LENGTH_SHORT).show()
+////
+//////                context?.let {
+//////                    Toast.makeText(it, "Weight saved: $weight kg", Toast.LENGTH_SHORT).show()
+//////                    view?.findViewById<Button>(R.id.save_weight_button)?.text ="@+id/weight_display"
+//////                }
+//            } catch (e: Exception) {
+//                Log.e("SleepFragment", "Failed to save weight: ${e.message}")
+//                Toast.makeText(context, "Lưu thất bại: ${e.message}", Toast.LENGTH_SHORT).show()
+//            }
+//        }
+//    }
+
+    private fun saveWeight(weight: Double) {
         lifecycleScope.launch {
-            try {
-                // Save weight to Health Connect
-                val now = Instant.now()
-                val weightRecord = WeightRecord(
-                    weight = Mass.kilograms(weight),
-                    time = now,
-                    zoneOffset = ZoneOffset.UTC
-                )
-                healthConnectClient?.insertRecords(listOf(weightRecord))
-
-                Toast.makeText(context, "Weight saved: $weight kg", Toast.LENGTH_SHORT).show()
-            } catch (e: Exception) {
-                Log.e("SleepFragment", "Failed to save weight: ${e.message}")
-
-                Toast.makeText(context, "Lưu thất bại: ${e.message}", Toast.LENGTH_SHORT).show()
+            context?.let {
+                DataProcessor.processWeightData(it, weight, healthConnectClient, weightViewModel)
+                view?.findViewById<TextView>(R.id.weight_display)?.text = "Weight: $weight kg"
             }
-
         }
     }
-
     override fun onDestroy() {
         super.onDestroy()
         handler.removeCallbacksAndMessages(null)

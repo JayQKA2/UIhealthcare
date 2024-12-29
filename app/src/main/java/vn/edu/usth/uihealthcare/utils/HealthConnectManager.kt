@@ -9,10 +9,13 @@ import androidx.activity.result.contract.ActivityResultContract
 import androidx.compose.runtime.mutableStateOf
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.HealthConnectClient.Companion.SDK_AVAILABLE
+import androidx.health.connect.client.HealthConnectClient.Companion.getSdkStatus
 import androidx.health.connect.client.HealthConnectFeatures
 import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.changes.Change
 import androidx.health.connect.client.feature.ExperimentalFeatureAvailabilityApi
+//import androidx.health.connect.client.features.ExperimentalFeatureAvailabilityApi
+//import androidx.health.connect.client.features.HealthConnectFeatures
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.HeartRateRecord
@@ -27,20 +30,34 @@ import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.health.connect.client.units.Energy
 import androidx.health.connect.client.units.Mass
+import androidx.lifecycle.LiveData
+import androidx.room.Room
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import kotlinx.coroutines.Dispatchers
 import java.io.IOException
 import java.time.Instant
 import java.time.ZonedDateTime
 import kotlin.random.Random
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.withContext
+import vn.edu.usth.uihealthcare.Data.AppDatabase.AppDatabase
+import vn.edu.usth.uihealthcare.Data.Entity.WeightEntity
 import java.util.concurrent.TimeUnit
 
 const val MIN_SUPPORTED_SDK = Build.VERSION_CODES.O_MR1
 
 class HealthConnectManager(private val context: Context) {
     private val healthConnectClient by lazy { HealthConnectClient.getOrCreate(context) }
+
+    //Room database
+//    private val db by lazy { Room.databaseBuilder(context.applicationContext,AppDatabase::class.java,"health_connect_db").build() }
+//    private val weightDao by lazy { db.weightDao()}
+
+    private val db by lazy { Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, "health_connect_db").build() }
+    private val weightDao by lazy { db.weightDao() }
+
     var availability = mutableStateOf(HealthConnectAvailability.NOT_SUPPORTED)
         private set
 
@@ -54,9 +71,9 @@ class HealthConnectManager(private val context: Context) {
         checkAvailability()
     }
 
-    fun checkForHealthConnectInstalled(context: Context):Int {
+    fun checkForHealthConnectInstalled(context: Context): Int {
         val availabilityStatus =
-            HealthConnectClient.getSdkStatus(context, "com.google.android.apps.healthdata")
+            getSdkStatus(context, "com.google.android.apps.healthdata")
         when (availabilityStatus) {
             HealthConnectClient.SDK_UNAVAILABLE -> {
                 val intent = Intent(Intent.ACTION_VIEW).apply {
@@ -78,7 +95,7 @@ class HealthConnectManager(private val context: Context) {
 
     fun checkAvailability() {
         availability.value = when {
-            HealthConnectClient.getSdkStatus(context) == SDK_AVAILABLE -> HealthConnectAvailability.INSTALLED
+            getSdkStatus(context) == SDK_AVAILABLE -> HealthConnectAvailability.INSTALLED
             isSupported() -> HealthConnectAvailability.NOT_INSTALLED
             else -> HealthConnectAvailability.NOT_SUPPORTED
         }
@@ -92,9 +109,8 @@ class HealthConnectManager(private val context: Context) {
         return false
     }
 
-
     @OptIn(ExperimentalFeatureAvailabilityApi::class)
-    fun isFeatureAvailable(feature: Int): Boolean{
+    fun isFeatureAvailable(feature: Int): Boolean {
         return healthConnectClient
             .features
             .getFeatureStatus(feature) == HealthConnectFeatures.FEATURE_STATUS_AVAILABLE
@@ -118,9 +134,24 @@ class HealthConnectManager(private val context: Context) {
         val records = listOf(weightRecord)
         try {
             healthConnectClient.insertRecords(records)
+
+            val weightEntity = WeightEntity(weight = weightInput.toFloat(), timestamp = time.toInstant().toEpochMilli())
+            weightDao.insert(weightEntity)
+
             Toast.makeText(context, "Successfully insert records", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
             Toast.makeText(context, e.message.toString(), Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    fun getAllWeights(): LiveData<List<WeightEntity>> {
+        return weightDao.getAllWeights()
+    }
+
+
+    suspend fun insertWeight(weightEntity: WeightEntity) {
+        withContext(Dispatchers.IO) {
+            weightDao.insert(weightEntity)
         }
     }
 
@@ -132,7 +163,6 @@ class HealthConnectManager(private val context: Context) {
         val response = healthConnectClient.readRecords(request)
         return response.records
     }
-
 
     suspend fun computeWeeklyAverage(start: Instant, end: Instant): Mass? {
         val request = AggregateRequest(
@@ -181,9 +211,6 @@ class HealthConnectManager(private val context: Context) {
         )
     }
 
-    /**
-     * TODO: Build [HeartRateRecord].
-     */
     private fun buildHeartRateSeries(
         sessionStartTime: ZonedDateTime,
         sessionEndTime: ZonedDateTime,
@@ -208,7 +235,6 @@ class HealthConnectManager(private val context: Context) {
         )
     }
 
-
     suspend fun getChangesToken(): String {
         return healthConnectClient.getChangesToken(
             ChangesTokenRequest(
@@ -223,15 +249,11 @@ class HealthConnectManager(private val context: Context) {
         )
     }
 
-    /**
-     * Retrieve changes from a changes token.
-     */
     suspend fun getChanges(token: String): Flow<ChangesMessage> = flow {
         var nextChangesToken = token
         do {
             val response = healthConnectClient.getChanges(nextChangesToken)
             if (response.changesTokenExpired) {
-
                 throw IOException("Changes token has expired")
             }
             emit(ChangesMessage.ChangeList(response.changes))
@@ -254,7 +276,6 @@ class HealthConnectManager(private val context: Context) {
 
     private fun isSupported() = Build.VERSION.SDK_INT >= MIN_SUPPORTED_SDK
 
-    // Represents the two types of messages that can be sent in a Changes flow.
     sealed class ChangesMessage {
         data class NoMoreChanges(val nextChangesToken: String) : ChangesMessage()
         data class ChangeList(val changes: List<Change>) : ChangesMessage()
