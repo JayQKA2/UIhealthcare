@@ -274,10 +274,9 @@
                 android:layout_alignParentEnd="true"
                 android:text="20000 steps"
                 android:textSize="34sp"/>
-
-
         </RelativeLayout>
     </androidx.cardview.widget.CardView>
+<<<<<<< HEAD
 <!--    <androidx.cardview.widget.CardView-->
 <!--        android:id="@+id/watch"-->
 <!--        android:layout_width="match_parent"-->
@@ -314,4 +313,13 @@
 <!--        </LinearLayout>-->
 
 <!--    </androidx.cardview.widget.CardView>-->
+=======
+
+    <ToggleButton
+        android:id="@+id/bluetooth_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/steps"
+        android:text="Connect to watch"/>
+>>>>>>> 6518d80eac652b48b38e38223be7b72b352c3c28
 </RelativeLayout>
