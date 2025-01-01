@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.compose.runtime.mutableStateOf
@@ -28,7 +29,9 @@ import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.health.connect.client.units.Energy
 import androidx.health.connect.client.units.Mass
 import androidx.health.connect.client.readRecord
+import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
 import androidx.health.connect.client.records.SleepSessionRecord
+import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import java.io.IOException
@@ -37,6 +40,17 @@ import java.time.ZonedDateTime
 import kotlin.random.Random
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import vn.edu.usth.uihealthcare.model.DataRecord
+import vn.edu.usth.uihealthcare.model.DataType
+import java.time.Duration
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.Period
+import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
+import java.util.TimeZone
 import java.util.concurrent.TimeUnit
 
 
@@ -59,6 +73,9 @@ class HealthConnectManager(private val context: Context) {
     init {
         checkAvailability()
     }
+
+    private val dateTimeFormatter: DateTimeFormatter =
+        DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX")
 
     fun checkForHealthConnectInstalled(context: Context):Int {
         val availabilityStatus =
@@ -153,43 +170,127 @@ class HealthConnectManager(private val context: Context) {
         return response[WeightRecord.WEIGHT_AVG]
     }
 
-    suspend fun readExerciseSessions(start: Instant, end: Instant): List<ExerciseSessionRecord> {
+
+    private var count: Long = 0
+
+    private fun incrementStepCount(): Long {
+        count++
+        return count
+    }
+
+    suspend fun writeStepsInput(start: ZonedDateTime, end: ZonedDateTime, count: Long) {
+        if (count < 1) {
+            Log.e("StepError", "Invalid count: $count. Count must be at least 1.")
+            return
+        }
+
+        val stepsRecord = StepsRecord(
+            startTime = start.toInstant(),
+            startZoneOffset = start.offset,
+            endTime = end.toInstant(),
+            endZoneOffset = end.offset,
+            count = incrementStepCount()
+        )
+        val records = listOf(stepsRecord)
+        healthConnectClient.insertRecords(records)
+        Log.d("StepRecord", "Steps record inserted: $count steps")
+    }
+
+
+    suspend fun readStepsRecords(interval : Long): List<DataRecord> {
+        val startTime: ZonedDateTime =
+            LocalDate.now().atStartOfDay(ZoneId.systemDefault()).minusDays(interval-1)
+
+        val endTime = LocalDateTime.now().atZone(TimeZone.getDefault().toZoneId()).minusMinutes(1)
+            .plusSeconds(59)
+        val response =
+            healthConnectClient?.aggregateGroupByPeriod(
+                AggregateGroupByPeriodRequest(
+                    metrics = setOf(StepsRecord.COUNT_TOTAL),
+                    timeRangeFilter = TimeRangeFilter.between(
+                        startTime.toLocalDate().atStartOfDay(),
+                        endTime.toLocalDateTime()
+                    ),
+                    timeRangeSlicer = Period.ofDays(1)
+                )
+            )
+        if (response != null) {
+            val stepsData = mutableListOf<DataRecord>()
+            response.sortedBy { it.startTime }
+            var trackTime = startTime.toLocalDate().atStartOfDay()
+            for (dailyResult in response) {
+                if (dailyResult.startTime.isAfter(trackTime)) {
+                    while (trackTime.isBefore(dailyResult.startTime)) {
+                        stepsData.add(
+                            DataRecord(
+                                metricValue = "0",
+                                dataType = DataType.STEPS,
+                                toDatetime = trackTime.toLocalDate().atTime(LocalTime.MAX)
+                                    .atZone(ZoneId.systemDefault()).format(
+                                        dateTimeFormatter
+                                    ),
+                                fromDatetime = if (trackTime.toLocalDate()
+                                        .isEqual(startTime.toLocalDate())
+                                ) startTime.format(dateTimeFormatter) else trackTime.atZone(ZoneId.systemDefault())
+                                    .format(dateTimeFormatter)
+                            )
+                        )
+                        trackTime = trackTime.plusDays(1)
+                    }
+                }
+                val totalSteps = dailyResult.result[StepsRecord.COUNT_TOTAL]
+                stepsData.add(
+                    DataRecord(
+                        metricValue = (totalSteps ?: 0).toString(),
+                        dataType = DataType.STEPS,
+                        toDatetime = dailyResult.endTime.atZone(ZoneId.systemDefault())
+                            .minusSeconds(1)
+                            .format(dateTimeFormatter),
+                        fromDatetime = if (dailyResult.startTime.toLocalDate()
+                                .isEqual(startTime.toLocalDate())
+                        ) startTime.format(
+                            dateTimeFormatter
+                        ) else dailyResult.startTime.atZone(ZoneId.systemDefault())
+                            .format(dateTimeFormatter)
+                    )
+                )
+                trackTime = dailyResult.endTime
+            }
+
+            while (trackTime.isBefore(endTime.toLocalDateTime()) && Duration.between(trackTime,endTime).toMinutes()>1) {
+                stepsData.add(
+                    DataRecord(
+                        metricValue = "0",
+                        dataType = DataType.STEPS,
+                        toDatetime = if (trackTime.toLocalDate().isEqual(endTime.toLocalDate()))
+                            endTime.format(dateTimeFormatter)
+                        else trackTime.toLocalDate().atTime(LocalTime.MAX)
+                            .atZone(ZoneId.systemDefault())
+                            .format(dateTimeFormatter),
+                        fromDatetime = if (trackTime.toLocalDate()
+                                .isEqual(startTime.toLocalDate())
+                        )
+                            startTime.format(dateTimeFormatter)
+                        else trackTime.atZone(ZoneId.systemDefault()).format(dateTimeFormatter)
+                    )
+                )
+                trackTime = trackTime.plusDays(1).toLocalDate().atStartOfDay()
+            }
+            Log.d("Data", stepsData.toString())
+            return stepsData
+        }
+        return emptyList()
+    }
+
+    suspend fun readCaloriesRecords(start: Instant, end: Instant): List<TotalCaloriesBurnedRecord> {
         val request = ReadRecordsRequest(
-            recordType = ExerciseSessionRecord::class,
+            recordType = TotalCaloriesBurnedRecord::class,
             timeRangeFilter = TimeRangeFilter.between(start, end)
         )
         val response = healthConnectClient.readRecords(request)
         return response.records
     }
 
-    suspend fun writeExerciseSession(start: ZonedDateTime, end: ZonedDateTime) {
-        healthConnectClient.insertRecords(
-            listOf(
-                ExerciseSessionRecord(
-                    startTime = start.toInstant(),
-                    startZoneOffset = start.offset,
-                    endTime = end.toInstant(),
-                    endZoneOffset = end.offset,
-                    exerciseType = ExerciseSessionRecord.EXERCISE_TYPE_RUNNING,
-                    title = "My Run #${Random.nextInt(0, 60)}"
-                ),
-                StepsRecord(
-                    startTime = start.toInstant(),
-                    startZoneOffset = start.offset,
-                    endTime = end.toInstant(),
-                    endZoneOffset = end.offset,
-                    count = (1000 + 1000 * Random.nextInt(3)).toLong()
-                ),
-                TotalCaloriesBurnedRecord(
-                    startTime = start.toInstant(),
-                    startZoneOffset = start.offset,
-                    endTime = end.toInstant(),
-                    endZoneOffset = end.offset,
-                    energy = Energy.calories((140 + Random.nextInt(20)) * 0.01)
-                )
-            ) + buildHeartRateSeries(start, end)
-        )
-    }
 
     /**
      * TODO: Build [HeartRateRecord].
