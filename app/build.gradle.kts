@@ -88,4 +88,6 @@ dependencies {
 
     implementation ("androidx.work:work-runtime:2.10.0")
 
+    implementation("com.google.android.gms:play-services-fitness:21.2.0")
+
 }

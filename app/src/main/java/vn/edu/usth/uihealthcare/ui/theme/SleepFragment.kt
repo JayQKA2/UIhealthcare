@@ -50,8 +50,8 @@ class SleepFragment : Fragment() {
                 val hour = calendar.get(Calendar.HOUR_OF_DAY)
                 val minute = calendar.get(Calendar.MINUTE)
                 val second = calendar.get(Calendar.SECOND)
-
                 val formattedTime = String.format("%02d:%02d:%02d", hour, minute, second)
+
                 timeDisplay.text = formattedTime
 
                 handler.postDelayed(this, 1000)
