@@ -101,4 +101,6 @@ dependencies {
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
 
+    implementation("com.google.android.gms:play-services-fitness:21.2.0")
+
 }

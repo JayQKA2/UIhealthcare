@@ -276,44 +276,6 @@
                 android:textSize="34sp"/>
         </RelativeLayout>
     </androidx.cardview.widget.CardView>
-<<<<<<< HEAD
-<!--    <androidx.cardview.widget.CardView-->
-<!--        android:id="@+id/watch"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_below="@id/steps"-->
-<!--        android:layout_marginStart="10dp"-->
-<!--        android:layout_marginTop="10dp"-->
-<!--        android:layout_marginEnd="10dp"-->
-<!--        app:cardCornerRadius="20dp">-->
-<!--        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="match_parent"-->
-<!--            android:orientation="vertical"-->
-<!--            android:padding="16dp">-->
-
-<!--            <TextView-->
-<!--                android:id="@+id/tvStatus"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:text="Server Status: Not started"-->
-<!--                android:textSize="16sp"/>-->
-
-<!--            <Button-->
-<!--                android:id="@+id/btnStartServer"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:text="Start Server"/>-->
-
-<!--            <Button-->
-<!--                android:id="@+id/btnSendMessage"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:text="Send Message"/>-->
-<!--        </LinearLayout>-->
-
-<!--    </androidx.cardview.widget.CardView>-->
-=======
 
     <ToggleButton
         android:id="@+id/bluetooth_id"
@@ -321,5 +283,4 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/steps"
         android:text="Connect to watch"/>
->>>>>>> 6518d80eac652b48b38e38223be7b72b352c3c28
 </RelativeLayout>

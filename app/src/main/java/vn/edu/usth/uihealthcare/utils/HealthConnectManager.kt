@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.compose.runtime.mutableStateOf
@@ -30,13 +31,13 @@ import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.health.connect.client.units.Energy
 import androidx.health.connect.client.units.Mass
-<<<<<<< HEAD
 import androidx.lifecycle.LiveData
 import androidx.room.Room
-=======
+
 import androidx.health.connect.client.readRecord
+import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
 import androidx.health.connect.client.records.SleepSessionRecord
->>>>>>> 6518d80eac652b48b38e38223be7b72b352c3c28
+import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import kotlinx.coroutines.Dispatchers
@@ -46,6 +47,17 @@ import java.time.ZonedDateTime
 import kotlin.random.Random
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import vn.edu.usth.uihealthcare.model.DataRecord
+import vn.edu.usth.uihealthcare.model.DataType
+import java.time.Duration
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.Period
+import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
+import java.util.TimeZone
 import kotlinx.coroutines.withContext
 import vn.edu.usth.uihealthcare.Data.AppDatabase.AppDatabase
 import vn.edu.usth.uihealthcare.Data.Entity.WeightEntity
@@ -56,7 +68,7 @@ const val MIN_SUPPORTED_SDK = Build.VERSION_CODES.O_MR1
 
 class HealthConnectManager(private val context: Context) {
     private val healthConnectClient by lazy { HealthConnectClient.getOrCreate(context) }
-<<<<<<< HEAD
+
 
     //Room database
 //    private val db by lazy { Room.databaseBuilder(context.applicationContext,AppDatabase::class.java,"health_connect_db").build() }
@@ -67,9 +79,8 @@ class HealthConnectManager(private val context: Context) {
 
     var availability = mutableStateOf(HealthConnectAvailability.NOT_SUPPORTED)
         private set
-=======
-    private var availability = mutableStateOf(HealthConnectAvailability.NOT_SUPPORTED)
->>>>>>> 6518d80eac652b48b38e38223be7b72b352c3c28
+
+//    private var availability = mutableStateOf(HealthConnectAvailability.NOT_SUPPORTED)
 
     val permission = setOf(
         HealthPermission.getReadPermission(StepsRecord::class),
@@ -85,9 +96,12 @@ class HealthConnectManager(private val context: Context) {
         checkAvailability()
     }
 
-    fun checkForHealthConnectInstalled(context: Context): Int {
+    private val dateTimeFormatter: DateTimeFormatter =
+        DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX")
+
+    fun checkForHealthConnectInstalled(context: Context):Int {
         val availabilityStatus =
-            getSdkStatus(context, "com.google.android.apps.healthdata")
+            HealthConnectClient.getSdkStatus(context, "com.google.android.apps.healthdata")
         when (availabilityStatus) {
             HealthConnectClient.SDK_UNAVAILABLE -> {
                 val intent = Intent(Intent.ACTION_VIEW).apply {
@@ -109,7 +123,7 @@ class HealthConnectManager(private val context: Context) {
 
     private fun checkAvailability() {
         availability.value = when {
-            getSdkStatus(context) == SDK_AVAILABLE -> HealthConnectAvailability.INSTALLED
+            HealthConnectClient.getSdkStatus(context) == SDK_AVAILABLE -> HealthConnectAvailability.INSTALLED
             isSupported() -> HealthConnectAvailability.NOT_INSTALLED
             else -> HealthConnectAvailability.NOT_SUPPORTED
         }
@@ -182,6 +196,7 @@ class HealthConnectManager(private val context: Context) {
         return response.records
     }
 
+
     suspend fun computeWeeklyAverage(start: Instant, end: Instant): Mass? {
         val request = AggregateRequest(
             metrics = setOf(WeightRecord.WEIGHT_AVG),
@@ -191,9 +206,121 @@ class HealthConnectManager(private val context: Context) {
         return response[WeightRecord.WEIGHT_AVG]
     }
 
-    suspend fun readExerciseSessions(start: Instant, end: Instant): List<ExerciseSessionRecord> {
+
+    private var count: Long = 0
+
+    private fun incrementStepCount(): Long {
+        count++
+        return count
+    }
+
+    suspend fun writeStepsInput(start: ZonedDateTime, end: ZonedDateTime, count: Long) {
+        if (count < 1) {
+            Log.e("StepError", "Invalid count: $count. Count must be at least 1.")
+            return
+        }
+
+        val stepsRecord = StepsRecord(
+            startTime = start.toInstant(),
+            startZoneOffset = start.offset,
+            endTime = end.toInstant(),
+            endZoneOffset = end.offset,
+            count = incrementStepCount()
+        )
+        val records = listOf(stepsRecord)
+        healthConnectClient.insertRecords(records)
+        Log.d("StepRecord", "Steps record inserted: $count steps")
+    }
+
+
+    suspend fun readStepsRecords(interval : Long): List<DataRecord> {
+        val startTime: ZonedDateTime =
+            LocalDate.now().atStartOfDay(ZoneId.systemDefault()).minusDays(interval-1)
+
+        val endTime = LocalDateTime.now().atZone(TimeZone.getDefault().toZoneId()).minusMinutes(1)
+            .plusSeconds(59)
+        val response =
+            healthConnectClient?.aggregateGroupByPeriod(
+                AggregateGroupByPeriodRequest(
+                    metrics = setOf(StepsRecord.COUNT_TOTAL),
+                    timeRangeFilter = TimeRangeFilter.between(
+                        startTime.toLocalDate().atStartOfDay(),
+                        endTime.toLocalDateTime()
+                    ),
+                    timeRangeSlicer = Period.ofDays(1)
+                )
+            )
+        if (response != null) {
+            val stepsData = mutableListOf<DataRecord>()
+            response.sortedBy { it.startTime }
+            var trackTime = startTime.toLocalDate().atStartOfDay()
+            for (dailyResult in response) {
+                if (dailyResult.startTime.isAfter(trackTime)) {
+                    while (trackTime.isBefore(dailyResult.startTime)) {
+                        stepsData.add(
+                            DataRecord(
+                                metricValue = "0",
+                                dataType = DataType.STEPS,
+                                toDatetime = trackTime.toLocalDate().atTime(LocalTime.MAX)
+                                    .atZone(ZoneId.systemDefault()).format(
+                                        dateTimeFormatter
+                                    ),
+                                fromDatetime = if (trackTime.toLocalDate()
+                                        .isEqual(startTime.toLocalDate())
+                                ) startTime.format(dateTimeFormatter) else trackTime.atZone(ZoneId.systemDefault())
+                                    .format(dateTimeFormatter)
+                            )
+                        )
+                        trackTime = trackTime.plusDays(1)
+                    }
+                }
+                val totalSteps = dailyResult.result[StepsRecord.COUNT_TOTAL]
+                stepsData.add(
+                    DataRecord(
+                        metricValue = (totalSteps ?: 0).toString(),
+                        dataType = DataType.STEPS,
+                        toDatetime = dailyResult.endTime.atZone(ZoneId.systemDefault())
+                            .minusSeconds(1)
+                            .format(dateTimeFormatter),
+                        fromDatetime = if (dailyResult.startTime.toLocalDate()
+                                .isEqual(startTime.toLocalDate())
+                        ) startTime.format(
+                            dateTimeFormatter
+                        ) else dailyResult.startTime.atZone(ZoneId.systemDefault())
+                            .format(dateTimeFormatter)
+                    )
+                )
+                trackTime = dailyResult.endTime
+            }
+
+            while (trackTime.isBefore(endTime.toLocalDateTime()) && Duration.between(trackTime,endTime).toMinutes()>1) {
+                stepsData.add(
+                    DataRecord(
+                        metricValue = "0",
+                        dataType = DataType.STEPS,
+                        toDatetime = if (trackTime.toLocalDate().isEqual(endTime.toLocalDate()))
+                            endTime.format(dateTimeFormatter)
+                        else trackTime.toLocalDate().atTime(LocalTime.MAX)
+                            .atZone(ZoneId.systemDefault())
+                            .format(dateTimeFormatter),
+                        fromDatetime = if (trackTime.toLocalDate()
+                                .isEqual(startTime.toLocalDate())
+                        )
+                            startTime.format(dateTimeFormatter)
+                        else trackTime.atZone(ZoneId.systemDefault()).format(dateTimeFormatter)
+                    )
+                )
+                trackTime = trackTime.plusDays(1).toLocalDate().atStartOfDay()
+            }
+            Log.d("Data", stepsData.toString())
+            return stepsData
+        }
+        return emptyList()
+    }
+
+    suspend fun readCaloriesRecords(start: Instant, end: Instant): List<TotalCaloriesBurnedRecord> {
         val request = ReadRecordsRequest(
-            recordType = ExerciseSessionRecord::class,
+            recordType = TotalCaloriesBurnedRecord::class,
             timeRangeFilter = TimeRangeFilter.between(start, end)
         )
         val response = healthConnectClient.readRecords(request)
@@ -229,13 +356,10 @@ class HealthConnectManager(private val context: Context) {
         )
     }
 
-<<<<<<< HEAD
-=======
     /**
      * TODO: Build [HeartRateRecord].
      */
 
->>>>>>> 6518d80eac652b48b38e38223be7b72b352c3c28
     private fun buildHeartRateSeries(
         sessionStartTime: ZonedDateTime,
         sessionEndTime: ZonedDateTime,
@@ -260,8 +384,6 @@ class HealthConnectManager(private val context: Context) {
         )
     }
 
-<<<<<<< HEAD
-=======
     /**
      * TODO: Build [SleepSessionRecord].
      */
@@ -290,7 +412,6 @@ class HealthConnectManager(private val context: Context) {
     }
 
 
->>>>>>> 6518d80eac652b48b38e38223be7b72b352c3c28
     suspend fun getChangesToken(): String {
         return healthConnectClient.getChangesToken(
             ChangesTokenRequest(
@@ -305,15 +426,13 @@ class HealthConnectManager(private val context: Context) {
         )
     }
 
-<<<<<<< HEAD
-=======
 
->>>>>>> 6518d80eac652b48b38e38223be7b72b352c3c28
     suspend fun getChanges(token: String): Flow<ChangesMessage> = flow {
         var nextChangesToken = token
         do {
             val response = healthConnectClient.getChanges(nextChangesToken)
             if (response.changesTokenExpired) {
+
                 throw IOException("Changes token has expired")
             }
             emit(ChangesMessage.ChangeList(response.changes))
