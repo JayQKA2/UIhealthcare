@@ -1,5 +1,6 @@
 package vn.edu.usth.uihealthcare
 
+import StepsSensorService
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -16,17 +17,18 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import vn.edu.usth.uihealthcare.sensor.StepsSensorService
+import vn.edu.usth.uihealthcare.model.MeasureStore
+import vn.edu.usth.uihealthcare.sensor.CameraService
 import vn.edu.usth.uihealthcare.utils.HealthConnectManager
-
 
 class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
     private lateinit var bottomNavigationBar: BottomNavigationView
     private lateinit var toolbar: Toolbar
+    private lateinit var cameraService: CameraService
 
     private val PHYSICAL_ACTIVITY_REQUEST_CODE = 100
-
+    private val CAMERA_REQUEST_CODE = 100
 
 
     private val hiddenBottomNavDestinations = setOf(
@@ -42,20 +44,23 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-
         checkAndRequestActivityRecognitionPermission()
-        healthConnectManager
         setupUI()
         setupNavigation()
+        checkAndRequestCameraPermission()
+
+        val heartrateIntent = Intent(this, MeasureStore::class.java)
+        startService(heartrateIntent)
+
         val serviceIntent = Intent(this, StepsSensorService::class.java)
-        startService(serviceIntent)
+        startForegroundService(serviceIntent)
     }
 
     override fun onDestroy() {
         super.onDestroy()
         Log.d("MM_StepsSensorService1", "onDestroy: ")
         stopService(Intent(this, StepsSensorService::class.java))
+        cameraService.stop()
     }
 
     private fun checkAndRequestActivityRecognitionPermission() {
@@ -71,6 +76,26 @@ class MainActivity : AppCompatActivity() {
                     this,
                     arrayOf(Manifest.permission.ACTIVITY_RECOGNITION),
                     PHYSICAL_ACTIVITY_REQUEST_CODE
+                )
+            }
+        } else {
+            onPermissionGranted()
+        }
+    }
+
+    private fun checkAndRequestCameraPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.CAMERA
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                onPermissionGranted()
+            } else {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.CAMERA),
+                    CAMERA_REQUEST_CODE
                 )
             }
         } else {
@@ -104,7 +129,6 @@ class MainActivity : AppCompatActivity() {
     private fun setupUI() {
         toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
-
         bottomNavigationBar = findViewById(R.id.nav_view)
     }
 
@@ -130,5 +154,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onSupportNavigateUp(): Boolean {
         return navController.navigateUp() || super.onSupportNavigateUp()
+    }
+
+    companion object {
+        const val MESSAGE_CAMERA_NOT_AVAILABLE = 3
     }
 }

@@ -1,5 +1,7 @@
-package vn.edu.usth.uihealthcare.sensor
-
+import android.annotation.SuppressLint
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -7,8 +9,11 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.os.Build
 import android.os.IBinder
 import android.util.Log
+import androidx.core.app.NotificationCompat
+import vn.edu.usth.uihealthcare.R
 import kotlin.math.sqrt
 
 class StepsSensorService : Service(), SensorEventListener {
@@ -16,16 +21,22 @@ class StepsSensorService : Service(), SensorEventListener {
     private lateinit var sensorManager: SensorManager
     private var steps = 0
     private var previousMagnitude = 0.0
-    private val threshold = 10.0
+    private val threshold = 12.0
     private var stepCount = 0
     private var isHaveStepCounter = true
+    private var lastStepTime: Long = 0
+    private val stepInterval = 50
 
     companion object {
         private const val TAG = "MM_StepsSensorService"
+        private const val CHANNEL_ID = "steps_sensor_service_channel"
     }
 
+    @SuppressLint("ForegroundServiceType")
     override fun onCreate() {
         super.onCreate()
+        createNotificationChannel()
+
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         var sensor: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
         if (sensor == null) {
@@ -33,17 +44,42 @@ class StepsSensorService : Service(), SensorEventListener {
             sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         }
         sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL)
+        Log.d(TAG, "Service started and sensor registered.")
+
+        // Create the notification and start the foreground service
+        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setContentTitle("Steps Sensor Running")
+            .setContentText("Tracking your steps in the background")
+            .setSmallIcon(R.drawable.ic_steps)
+            .build()
+
+        startForeground(1, notification)
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                CHANNEL_ID,
+                "Steps Sensor Service",
+                NotificationManager.IMPORTANCE_DEFAULT
+            ).apply {
+                description = "Channel for Steps Sensor Foreground Service"
+            }
+
+            val notificationManager = getSystemService(NotificationManager::class.java)
+            notificationManager.createNotificationChannel(channel)
+        }
     }
 
     override fun onSensorChanged(event: SensorEvent) {
         if (isHaveStepCounter) {
-            calculatorStepCounter(event)
+            handleStepCounter(event)
         } else {
-            calculatorAccelerometer(event)
+            handleAccelerometer(event)
         }
     }
 
-    private fun calculatorStepCounter(event: SensorEvent) {
+    private fun handleStepCounter(event: SensorEvent) {
         val eventSteps = event.values[0].toInt()
         if (steps == 0) {
             steps = eventSteps
@@ -51,17 +87,11 @@ class StepsSensorService : Service(), SensorEventListener {
             val deltaSteps = eventSteps - steps
             steps = eventSteps
             sendStepCountToFragment(steps)
-            Log.e(TAG, "calculatorStepCounter: "+ steps )
+            Log.d(TAG, "Step Counter: Steps detected = $deltaSteps, Total = $steps")
         }
     }
 
-    private fun sendStepCountToFragment(stepCount: Int) {
-        val intent = Intent("vn.edu.usth.uihealthcare.STEP_COUNT_UPDATE")
-        intent.putExtra("step_count", stepCount)
-        sendBroadcast(intent)
-    }
-
-    private fun calculatorAccelerometer(event: SensorEvent) {
+    private fun handleAccelerometer(event: SensorEvent) {
         if (event.sensor.type == Sensor.TYPE_ACCELEROMETER) {
             val x = event.values[0].toDouble()
             val y = event.values[1].toDouble()
@@ -71,24 +101,38 @@ class StepsSensorService : Service(), SensorEventListener {
             val delta = magnitude - previousMagnitude
             previousMagnitude = magnitude
 
-            if (delta > threshold) {
+            if (isStep(delta)) {
                 stepCount++
                 sendStepCountToFragment(stepCount)
+                Log.d(TAG, "Accelerometer: Step detected. Total steps = $stepCount")
             }
         }
     }
 
-    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+    private fun isStep(delta: Double): Boolean {
+        val currentTime = System.currentTimeMillis()
+        if (delta > threshold && currentTime - lastStepTime > stepInterval) {
+            lastStepTime = currentTime
+            return true
+        }
+        return false
     }
+
+    private fun sendStepCountToFragment(stepCount: Int) {
+        val intent = Intent("vn.edu.usth.uihealthcare.STEP_COUNT_UPDATE")
+        intent.putExtra("step_count", stepCount)
+        sendBroadcast(intent)
+    }
+
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
 
     override fun onDestroy() {
         super.onDestroy()
         sensorManager.unregisterListener(this)
+        Log.d(TAG, "Service stopped and sensor unregistered.")
     }
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
     }
-
-
 }

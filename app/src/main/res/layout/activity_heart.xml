@@ -50,31 +50,48 @@
             android:textStyle="bold"
             app:layout_constraintLeft_toRightOf="@+id/icon" />
 
-        <FrameLayout
-            android:layout_marginTop="10dp"
+        <TextureView
+            android:id="@+id/heart_rate_bar"
+            app:layout_constraintTop_toBottomOf="@id/icon"
             android:layout_width="wrap_content"
-            android:layout_height="300dp"
-            app:layout_constraintTop_toBottomOf="@id/icon">
+            android:layout_height="60dp"
+            android:layout_marginTop="10dp"/>
 
-            <com.airbnb.lottie.LottieAnimationView
-                android:id="@+id/animationView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleX="1.5"
-                android:scaleY="1.5"
-                app:lottie_loop="true"
-                app:lottie_rawRes="@raw/heart_rate" />
+        <TextureView
+            android:id="@+id/camera"
+            app:layout_constraintTop_toBottomOf="@id/heart_rate_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="60dp"
+            android:layout_marginTop="10dp"/>
 
-            <TextView
-                android:id="@+id/num_heart"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="120"
-                android:textColor="@color/white"
-                android:textSize="30sp"
-                android:layout_gravity="center"
-                android:textStyle="bold" />
-        </FrameLayout>
+        <TextView
+            android:id="@+id/pulse_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/camera"
+            android:text="120 bmp"
+            android:textColor="@color/black"
+            android:textSize="25sp"
+            android:textStyle="bold"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"/>
+
+        <Button
+            android:id="@+id/floatingActionButton"
+            android:layout_width="56dp"
+            app:layout_constraintTop_toBottomOf="@id/pulse_value"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="32dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:onClick="onClickNewMeasurement"
+            android:visibility="visible"
+            android:layout_marginTop="20dp"
+            android:text="ĐO"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:visibility="visible"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

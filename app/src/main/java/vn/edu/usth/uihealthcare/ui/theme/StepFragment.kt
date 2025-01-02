@@ -1,10 +1,12 @@
 package vn.edu.usth.uihealthcare.ui.theme
 
+import StepsSensorService
 import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -12,9 +14,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.CalendarView
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import vn.edu.usth.uihealthcare.R
-import vn.edu.usth.uihealthcare.sensor.StepsSensorService
 
 class StepFragment : Fragment() {
 
@@ -23,6 +25,7 @@ class StepFragment : Fragment() {
     private lateinit var sensorReceiver: BroadcastReceiver
     private var currentSteps = 0
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @SuppressLint("SetTextI18n", "DefaultLocale")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

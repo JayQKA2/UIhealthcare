@@ -1,11 +1,11 @@
 package vn.edu.usth.uihealthcare
 
+import StepsSensorService
 import android.app.Application
 import android.content.Intent
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.Observer
-import vn.edu.usth.uihealthcare.sensor.StepsSensorService
 
 class MainViewModel(application: Application): AndroidViewModel(application) {
     private val automaticStepCountingObserver = Observer { isEnabled: Boolean ->
