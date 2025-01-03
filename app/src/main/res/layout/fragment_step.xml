@@ -2,8 +2,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#F7F7F7">
+    android:layout_height="match_parent">
 
     <TextView
         android:id="@+id/steps_title"
@@ -23,6 +22,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintLeft_toRightOf="@id/steps_title"
+        app:layout_constraintBottom_toTopOf="@id/calor_title"
         android:paddingTop="10dp"
         android:paddingEnd="0dp"
         tools:text="10000 steps"

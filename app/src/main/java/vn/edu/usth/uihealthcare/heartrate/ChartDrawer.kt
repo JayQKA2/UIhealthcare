@@ -22,9 +22,7 @@ class ChartDrawer(private val chartTextureView: TextureView) {
     }
 
     fun draw(data: CopyOnWriteArrayList<Measurement<Float>>) {
-        val chartCanvas = chartTextureView.lockCanvas()
-
-        if (chartCanvas == null) return
+        val chartCanvas = chartTextureView.lockCanvas() ?: return
 
         chartCanvas.drawPaint(fillWhite)
         val graphPath = Path()

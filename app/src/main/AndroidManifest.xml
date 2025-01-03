@@ -6,7 +6,10 @@
         android:name="android.hardware.camera"
         android:required="true" />
 
+
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" android:required="true"/>
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
 
@@ -43,7 +46,8 @@
         <service
             android:name=".sensor.StepsSensorService"
             android:enabled="true"
-            android:exported="false">
+            android:exported="false"
+            android:foregroundServiceType="dataSync">
         </service>
 
         <activity
