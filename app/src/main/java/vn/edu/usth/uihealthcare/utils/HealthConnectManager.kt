@@ -296,21 +296,26 @@ class HealthConnectManager(private val context: Context) {
      * TODO: Build [HeartRateRecord].
      */
 
-    private fun buildHeartRateSeries(
+     fun buildHeartRateSeries(
         sessionStartTime: ZonedDateTime,
         sessionEndTime: ZonedDateTime,
+        pulseValues: List<Int>
     ): HeartRateRecord {
         val samples = mutableListOf<HeartRateRecord.Sample>()
         var time = sessionStartTime
-        while (time.isBefore(sessionEndTime)) {
+        var index = 0
+
+        while (time.isBefore(sessionEndTime) && index < pulseValues.size) {
             samples.add(
                 HeartRateRecord.Sample(
                     time = time.toInstant(),
-                    beatsPerMinute = (80 + Random.nextInt(80)).toLong()
+                    beatsPerMinute = pulseValues[index].toLong()
                 )
             )
             time = time.plusSeconds(30)
+            index++
         }
+
         return HeartRateRecord(
             startTime = sessionStartTime.toInstant(),
             startZoneOffset = sessionStartTime.offset,
@@ -319,6 +324,8 @@ class HealthConnectManager(private val context: Context) {
             samples = samples
         )
     }
+
+
 
     /**
      * TODO: Build [SleepSessionRecord].

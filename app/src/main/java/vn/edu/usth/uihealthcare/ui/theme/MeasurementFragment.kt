@@ -35,7 +35,6 @@ class MeasurementFragment : Fragment() {
         heightSpinner = view.findViewById(R.id.cv2t31)
         distanceSpinner = view.findViewById(R.id.cv2t51)
 
-        // Setting adapters for each Spinner
         val weightAdapter = ArrayAdapter.createFromResource(
             requireContext(),
             R.array.weight_units,

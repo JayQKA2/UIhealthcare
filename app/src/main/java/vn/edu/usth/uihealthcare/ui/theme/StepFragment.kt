@@ -1,6 +1,5 @@
 package vn.edu.usth.uihealthcare.ui.theme
 
-import StepsSensorService
 import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -17,6 +16,7 @@ import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import vn.edu.usth.uihealthcare.R
+import vn.edu.usth.uihealthcare.sensor.StepsSensorService
 
 class StepFragment : Fragment() {
 

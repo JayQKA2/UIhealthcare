@@ -2,14 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Permissions for foreground service and activity recognition -->
     <uses-feature
         android:name="android.hardware.camera"
-        android:required="false" />
+        android:required="true" />
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" android:required="true"/>
-    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -37,6 +36,12 @@
         android:theme="@style/Theme.UIHealthcare"
         tools:targetApi="tiramisu">
 
+        <service
+            android:name=".sensor.StepsSensorService"
+            android:enabled="true"
+            android:exported="false">
+        </service>
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -52,18 +57,7 @@
 
         <activity android:name=".ui.theme.HeartActivity"></activity>
 
-        <service
-            android:name=".sensor.StepsSensorService"
-            android:exported="true"
-            android:permission="android.permission.BIND_JOB_SERVICE">
-            <intent-filter>
-                <action android:name="vn.edu.usth.uihealthcare.sensor.StepsSensorService" />
-            </intent-filter>
 
-            <meta-data
-                android:name="android.service.foregroundServiceType"
-                android:value="sensor" />
-        </service>
 
         <activity-alias
             android:name="ViewPermissionUsageActivity"

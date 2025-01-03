@@ -1,5 +1,4 @@
-import android.annotation.SuppressLint
-import android.app.Notification
+package vn.edu.usth.uihealthcare.sensor
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
@@ -9,11 +8,8 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import android.os.Build
 import android.os.IBinder
 import android.util.Log
-import androidx.core.app.NotificationCompat
-import vn.edu.usth.uihealthcare.R
 import kotlin.math.sqrt
 
 class StepsSensorService : Service(), SensorEventListener {
@@ -32,7 +28,6 @@ class StepsSensorService : Service(), SensorEventListener {
         private const val CHANNEL_ID = "steps_sensor_service_channel"
     }
 
-    @SuppressLint("ForegroundServiceType")
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
@@ -46,29 +41,19 @@ class StepsSensorService : Service(), SensorEventListener {
         sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL)
         Log.d(TAG, "Service started and sensor registered.")
 
-        // Create the notification and start the foreground service
-        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Steps Sensor Running")
-            .setContentText("Tracking your steps in the background")
-            .setSmallIcon(R.drawable.ic_steps)
-            .build()
-
-        startForeground(1, notification)
     }
 
     private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                CHANNEL_ID,
-                "Steps Sensor Service",
-                NotificationManager.IMPORTANCE_DEFAULT
-            ).apply {
-                description = "Channel for Steps Sensor Foreground Service"
-            }
-
-            val notificationManager = getSystemService(NotificationManager::class.java)
-            notificationManager.createNotificationChannel(channel)
+        val channel = NotificationChannel(
+            CHANNEL_ID,
+            "Steps Sensor Service",
+            NotificationManager.IMPORTANCE_DEFAULT
+        ).apply {
+            description = "Channel for Steps Sensor Foreground Service"
         }
+
+        val notificationManager = getSystemService(NotificationManager::class.java)
+        notificationManager.createNotificationChannel(channel)
     }
 
     override fun onSensorChanged(event: SensorEvent) {

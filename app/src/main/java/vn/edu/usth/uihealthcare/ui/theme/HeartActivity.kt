@@ -15,10 +15,14 @@ import android.widget.Toolbar
 import androidx.appcompat.app.AppCompatActivity
 import vn.edu.usth.uihealthcare.R
 import vn.edu.usth.uihealthcare.sensor.CameraService
+import vn.edu.usth.uihealthcare.utils.HealthConnectManager
+import java.time.ZonedDateTime
 
 
 class HeartActivity : AppCompatActivity() {
     private var analyzer: OutputAnalyzer? = null
+    private var sessionStartTime: ZonedDateTime? = null
+    private var sessionEndTime: ZonedDateTime? = null
 
     private val mainHandler = @SuppressLint("HandlerLeak")
     object : Handler(Looper.getMainLooper()) {
@@ -33,6 +37,8 @@ class HeartActivity : AppCompatActivity() {
                     view.findViewById<TextView>(R.id.pulse_value).setText(msg.obj.toString())
                     setViewState(VIEW_STATE.SHOW_RESULTS)
                     stopCamera()
+                    sessionEndTime = ZonedDateTime.now()
+
                 }
                 MESSAGE_CAMERA_NOT_AVAILABLE -> {
                     view.findViewById<TextView>(R.id.pulse_value).setText(R.string.camera_not_found)
@@ -67,6 +73,9 @@ class HeartActivity : AppCompatActivity() {
         analyzer = OutputAnalyzer(this, findViewById(R.id.heart_rate_bar), mainHandler)
         findViewById<TextView>(R.id.pulse_value).text = ""
         setViewState(VIEW_STATE.MEASUREMENT)
+
+        sessionStartTime = ZonedDateTime.now()
+
 
         val cameraTextureView = findViewById<TextureView>(R.id.camera)
         val previewSurfaceTexture = cameraTextureView?.surfaceTexture

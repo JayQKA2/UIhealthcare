@@ -1,6 +1,5 @@
 package vn.edu.usth.uihealthcare
 
-import StepsSensorService
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -19,6 +18,7 @@ import androidx.navigation.ui.NavigationUI
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import vn.edu.usth.uihealthcare.model.MeasureStore
 import vn.edu.usth.uihealthcare.sensor.CameraService
+import vn.edu.usth.uihealthcare.sensor.StepsSensorService
 import vn.edu.usth.uihealthcare.utils.HealthConnectManager
 
 class MainActivity : AppCompatActivity() {
@@ -49,8 +49,6 @@ class MainActivity : AppCompatActivity() {
         setupNavigation()
         checkAndRequestCameraPermission()
 
-        val heartrateIntent = Intent(this, MeasureStore::class.java)
-        startService(heartrateIntent)
 
         val serviceIntent = Intent(this, StepsSensorService::class.java)
         startForegroundService(serviceIntent)
