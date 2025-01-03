@@ -1,4 +1,6 @@
 package vn.edu.usth.uihealthcare.sensor
+
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
@@ -8,8 +10,11 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.os.Build
 import android.os.IBinder
 import android.util.Log
+import androidx.core.app.NotificationCompat
+import vn.edu.usth.uihealthcare.R
 import kotlin.math.sqrt
 
 class StepsSensorService : Service(), SensorEventListener {
@@ -28,6 +33,7 @@ class StepsSensorService : Service(), SensorEventListener {
         private const val CHANNEL_ID = "steps_sensor_service_channel"
     }
 
+    @SuppressLint("ForegroundServiceType")
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
@@ -42,6 +48,18 @@ class StepsSensorService : Service(), SensorEventListener {
         Log.d(TAG, "Service started and sensor registered.")
 
     }
+
+    private fun updateNotification(stepCount: Int) {
+        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setContentTitle("Steps Sensor Running: $stepCount steps")
+            .setContentText("Tracking your steps in the background")
+            .setSmallIcon(R.drawable.ic_steps)
+            .build()
+
+        val notificationManager = getSystemService(NotificationManager::class.java)
+        notificationManager.notify(1, notification)
+    }
+
 
     private fun createNotificationChannel() {
         val channel = NotificationChannel(
@@ -72,7 +90,7 @@ class StepsSensorService : Service(), SensorEventListener {
             val deltaSteps = eventSteps - steps
             steps = eventSteps
             sendStepCountToFragment(steps)
-            Log.d(TAG, "Step Counter: Steps detected = $deltaSteps, Total = $steps")
+            updateNotification(steps)
         }
     }
 
@@ -89,7 +107,7 @@ class StepsSensorService : Service(), SensorEventListener {
             if (isStep(delta)) {
                 stepCount++
                 sendStepCountToFragment(stepCount)
-                Log.d(TAG, "Accelerometer: Step detected. Total steps = $stepCount")
+                updateNotification(stepCount)
             }
         }
     }
