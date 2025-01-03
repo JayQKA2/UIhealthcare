@@ -32,12 +32,12 @@ class HeartActivity : AppCompatActivity() {
                 MESSAGE_UPDATE_FINAL -> {
                     view.findViewById<TextView>(R.id.pulse_value).setText(msg.obj.toString())
                     setViewState(VIEW_STATE.SHOW_RESULTS)
-                    stopCamera() // Stop the camera after measurement is done
+                    stopCamera()
                 }
                 MESSAGE_CAMERA_NOT_AVAILABLE -> {
                     view.findViewById<TextView>(R.id.pulse_value).setText(R.string.camera_not_found)
                     analyzer?.stop()
-                    stopCamera() // Stop the camera if it's not available
+                    stopCamera()
                 }
             }
         }
@@ -47,7 +47,7 @@ class HeartActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_heart) // Set layout for activity
+        setContentView(R.layout.activity_heart)
         val startButton: Button = findViewById(R.id.floatingActionButton)
         startButton.setOnClickListener { onClickNewMeasurement() }
     }
@@ -68,7 +68,6 @@ class HeartActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.pulse_value).text = ""
         setViewState(VIEW_STATE.MEASUREMENT)
 
-        // Start camera when user starts a new measurement
         val cameraTextureView = findViewById<TextureView>(R.id.camera)
         val previewSurfaceTexture = cameraTextureView?.surfaceTexture
         previewSurfaceTexture?.let {

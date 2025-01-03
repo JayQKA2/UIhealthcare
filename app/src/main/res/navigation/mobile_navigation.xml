@@ -49,9 +49,8 @@
 
     <fragment
         android:id="@+id/navigation_heart"
-        android:name="vn.edu.usth.uihealthcare.ui.theme.HeartFragment"
         android:label="Heart"
-        tools:layout="@layout/fragment_heart"/>
+        tools:layout="@layout/activity_heart"/>
 
     <fragment
         android:id="@+id/navigation_test"

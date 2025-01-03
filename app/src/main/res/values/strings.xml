@@ -26,5 +26,20 @@
         <item>miles</item>
     </string-array>
 
+    <string name="output_header_template">Heart rate on %s</string>
+    <string name="separator">,</string>
+    <string name="row_separator">\n</string>
+    <string name="raw_values">Measurements (Timestamp, Value)</string>
+    <string name="noFlashWarning">Measurement without flash is less reliable.</string>
+    <string name="new_measurement">New Measurement</string>
+    <string name="export_result">Export Result</string>
+    <string name="export_details">Export Details</string>
+
+    <string name="camera_not_found">Camera not available.</string>
+    <plurals name="measurement_output_template">
+        <item quantity="zero">%2.1f bpm</item>
+        <item quantity="one">%2.1f bpm</item>
+        <item quantity="other">%2.1f bpm</item>
+    </plurals>
     <string name="settings">Settings</string>
 </resources>

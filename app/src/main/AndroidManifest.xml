@@ -2,10 +2,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Permissions for foreground service and activity recognition -->
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" android:required="true"/>
-
+    <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -39,7 +43,6 @@
             android:theme="@style/Theme.UIHealthcare">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
@@ -47,13 +50,20 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".ui.theme.HeartActivity"></activity>
+
         <service
             android:name=".sensor.StepsSensorService"
-            android:enabled="true"
-            android:exported="false">
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE">
+            <intent-filter>
+                <action android:name="vn.edu.usth.uihealthcare.sensor.StepsSensorService" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.service.foregroundServiceType"
+                android:value="sensor" />
         </service>
-
-
 
         <activity-alias
             android:name="ViewPermissionUsageActivity"
@@ -65,6 +75,7 @@
                 <category android:name="android.intent.category.HEALTH_PERMISSIONS" />
             </intent-filter>
         </activity-alias>
+
     </application>
 
 </manifest>

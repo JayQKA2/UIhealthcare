@@ -25,7 +25,7 @@
         app:layout_constraintLeft_toRightOf="@id/steps_title"
         android:paddingTop="10dp"
         android:paddingEnd="0dp"
-        android:text="10000 steps"
+        tools:text="10000 steps"
         android:textSize="20sp"
         android:textColor="#000"/>
 
