@@ -107,5 +107,28 @@
         android:textColor="@android:color/black"
         android:textStyle="bold" />
 
+    <Button
+        android:id="@+id/btnSetSleepTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="144dp"
+        android:text="Chọn giờ đi ngủ"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/weekly_check_card" />
+
+    <TextView
+        android:id="@+id/tvSleepTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Giờ đi ngủ: Chưa chọn"
+        app:layout_constraintTop_toBottomOf="@id/btnSetSleepTime"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp"
+        android:textColor="@color/white"
+        android:textSize="20sp"/>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

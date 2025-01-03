@@ -133,8 +133,47 @@
         android:orientation="horizontal"
         android:weightSum="2">
 
+<!--        <androidx.cardview.widget.CardView-->
+<!--            android:id="@+id/sleepCard"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginEnd="5dp"-->
+<!--            android:layout_weight="1"-->
+<!--            app:cardCornerRadius="20dp">-->
+
+<!--            <RelativeLayout-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:padding="16dp">-->
+
+<!--                <ImageButton-->
+<!--                    android:id="@+id/sds"-->
+<!--                    android:layout_width="50dp"-->
+<!--                    android:layout_height="50dp"-->
+<!--                    android:background="@drawable/circle"-->
+<!--                    android:scaleType="centerInside"-->
+<!--                    android:src="@drawable/ic_sleep" />-->
+
+<!--                <TextView-->
+<!--                    android:id="@+id/wwewe"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_below="@id/sds"-->
+<!--                    android:layout_marginTop="5dp"-->
+<!--                    android:text="Sleep"-->
+<!--                    android:textSize="18sp" />-->
+
+<!--                <TextView-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_below="@id/wwewe"-->
+<!--                    android:text="6.5 hours"-->
+<!--                    android:textSize="34sp"/>-->
+
+<!--            </RelativeLayout>-->
+<!--        </androidx.cardview.widget.CardView>-->
         <androidx.cardview.widget.CardView
-            android:id="@+id/sleepCard"
+            android:id="@+id/sleepCard2"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="5dp"
@@ -147,7 +186,7 @@
                 android:padding="16dp">
 
                 <ImageButton
-                    android:id="@+id/sds"
+                    android:id="@+id/sd"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
                     android:background="@drawable/circle"
@@ -155,10 +194,10 @@
                     android:src="@drawable/ic_sleep" />
 
                 <TextView
-                    android:id="@+id/wwewe"
+                    android:id="@+id/wwe"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_below="@id/sds"
+                    android:layout_below="@id/sd"
                     android:layout_marginTop="5dp"
                     android:text="Sleep"
                     android:textSize="18sp" />
@@ -166,7 +205,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_below="@id/wwewe"
+                    android:layout_below="@id/wwe"
                     android:text="6.5 hours"
                     android:textSize="34sp"/>
 
