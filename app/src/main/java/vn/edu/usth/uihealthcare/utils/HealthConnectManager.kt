@@ -204,7 +204,7 @@ class HealthConnectManager(private val context: Context) {
         val endTime = LocalDateTime.now().atZone(TimeZone.getDefault().toZoneId()).minusMinutes(1)
             .plusSeconds(59)
         val response =
-            healthConnectClient?.aggregateGroupByPeriod(
+            healthConnectClient.aggregateGroupByPeriod(
                 AggregateGroupByPeriodRequest(
                     metrics = setOf(StepsRecord.COUNT_TOTAL),
                     timeRangeFilter = TimeRangeFilter.between(

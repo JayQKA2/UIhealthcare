@@ -48,7 +48,7 @@ class StepFragment : Fragment() {
         val filter = IntentFilter("vn.edu.usth.uihealthcare.STEP_COUNT_UPDATE")
         requireContext().registerReceiver(sensorReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
 
-        calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
+        calendarView.setOnDateChangeListener { _, _, month, dayOfMonth ->
             val selectedDate = String.format("%02d/%02d", dayOfMonth, month + 1)
             stepsTextView.text = "$selectedDate: $currentSteps steps"
         }

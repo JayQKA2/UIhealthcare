@@ -3,12 +3,11 @@ import android.os.Handler
 import android.os.Message
 import android.view.TextureView
 import vn.edu.usth.uihealthcare.sensor.CameraService
-import com.example.myapplication.ChartDrawer
+import vn.edu.usth.uihealthcare.heartrate.ChartDrawer
 import vn.edu.usth.uihealthcare.MainActivity
 import vn.edu.usth.uihealthcare.R
 import vn.edu.usth.uihealthcare.model.MeasureStore
 import vn.edu.usth.uihealthcare.ui.theme.HeartActivity
-import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -90,7 +89,7 @@ class OutputAnalyzer(private val activity: HeartActivity, graphTextureView: Text
             }
 
             override fun onFinish() {
-                val stdValues = store?.getStdValues() ?: return
+                store?.getStdValues() ?: return
 
                 if (valleys.isEmpty()) {
                     mainHandler.sendMessage(
@@ -113,7 +112,7 @@ class OutputAnalyzer(private val activity: HeartActivity, graphTextureView: Text
             }
         }
 
-        activity.setViewState(HeartActivity.VIEW_STATE.MEASUREMENT)
+        activity.setViewState(HeartActivity.ViewState.MEASUREMENT)
         timer?.start()
     }
 

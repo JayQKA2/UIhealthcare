@@ -4,8 +4,11 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
+import android.provider.Settings
 import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -16,10 +19,10 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import vn.edu.usth.uihealthcare.model.MeasureStore
 import vn.edu.usth.uihealthcare.sensor.CameraService
 import vn.edu.usth.uihealthcare.sensor.StepsSensorService
 import vn.edu.usth.uihealthcare.utils.HealthConnectManager
+
 
 class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
@@ -32,15 +35,17 @@ class MainActivity : AppCompatActivity() {
 
 
     private val hiddenBottomNavDestinations = setOf(
+        R.id.navigation_heart,
         R.id.navigation_test,
         R.id.navigation_sleep,
         R.id.navigation_step,
         R.id.navigation_heart,
         R.id.navigation_measurement,
-        R.id.navigation_sleep2
+        R.id.navigation_sleep2,
+
     )
 
-    @SuppressLint("MissingPermission")
+    @SuppressLint("MissingPermission", "BatteryLife")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -48,7 +53,6 @@ class MainActivity : AppCompatActivity() {
         setupUI()
         setupNavigation()
         checkAndRequestCameraPermission()
-
 
         val serviceIntent = Intent(this, StepsSensorService::class.java)
         startForegroundService(serviceIntent)

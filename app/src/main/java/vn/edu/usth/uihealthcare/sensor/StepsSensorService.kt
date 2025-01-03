@@ -1,6 +1,7 @@
 package vn.edu.usth.uihealthcare.sensor
 
 import android.annotation.SuppressLint
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
@@ -10,7 +11,6 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
@@ -39,27 +39,29 @@ class StepsSensorService : Service(), SensorEventListener {
         createNotificationChannel()
 
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
-        var sensor: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
-        if (sensor == null) {
-            isHaveStepCounter = false
-            sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
-        }
+        val sensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
+            ?: sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER).also {
+                isHaveStepCounter = false
+            }
         sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL)
         Log.d(TAG, "Service started and sensor registered.")
 
+        startForeground(1, createNotification(0))
     }
 
-    private fun updateNotification(stepCount: Int) {
-        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
+    private fun createNotification(stepCount: Int): Notification {
+        return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("Steps Sensor Running: $stepCount steps")
             .setContentText("Tracking your steps in the background")
             .setSmallIcon(R.drawable.ic_steps)
+            .setOngoing(true)
             .build()
-
-        val notificationManager = getSystemService(NotificationManager::class.java)
-        notificationManager.notify(1, notification)
     }
 
+    private fun updateNotification(stepCount: Int) {
+        val notificationManager = getSystemService(NotificationManager::class.java)
+        notificationManager.notify(1, createNotification(stepCount))
+    }
 
     private fun createNotificationChannel() {
         val channel = NotificationChannel(
@@ -87,7 +89,6 @@ class StepsSensorService : Service(), SensorEventListener {
         if (steps == 0) {
             steps = eventSteps
         } else {
-            val deltaSteps = eventSteps - steps
             steps = eventSteps
             sendStepCountToFragment(steps)
             updateNotification(steps)
@@ -128,6 +129,10 @@ class StepsSensorService : Service(), SensorEventListener {
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        return START_STICKY
+    }
 
     override fun onDestroy() {
         super.onDestroy()

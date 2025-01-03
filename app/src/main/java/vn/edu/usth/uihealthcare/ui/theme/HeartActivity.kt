@@ -11,18 +11,19 @@ import android.view.TextureView
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
-import android.widget.Toolbar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import vn.edu.usth.uihealthcare.R
 import vn.edu.usth.uihealthcare.sensor.CameraService
-import vn.edu.usth.uihealthcare.utils.HealthConnectManager
 import java.time.ZonedDateTime
 
 
 class HeartActivity : AppCompatActivity() {
     private var analyzer: OutputAnalyzer? = null
     private var sessionStartTime: ZonedDateTime? = null
+    private lateinit var toolbar: Toolbar
     private var sessionEndTime: ZonedDateTime? = null
+
 
     private val mainHandler = @SuppressLint("HandlerLeak")
     object : Handler(Looper.getMainLooper()) {
@@ -34,8 +35,8 @@ class HeartActivity : AppCompatActivity() {
                     view.findViewById<TextView>(R.id.pulse_value).text = msg.obj.toString()
                 }
                 MESSAGE_UPDATE_FINAL -> {
-                    view.findViewById<TextView>(R.id.pulse_value).setText(msg.obj.toString())
-                    setViewState(VIEW_STATE.SHOW_RESULTS)
+                    view.findViewById<TextView>(R.id.pulse_value).text = msg.obj.toString()
+                    setViewState(ViewState.SHOW_RESULTS)
                     stopCamera()
                     sessionEndTime = ZonedDateTime.now()
 
@@ -54,6 +55,13 @@ class HeartActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_heart)
+        toolbar = findViewById(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        toolbar.setNavigationOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
+        }
         val startButton: Button = findViewById(R.id.floatingActionButton)
         startButton.setOnClickListener { onClickNewMeasurement() }
     }
@@ -72,7 +80,7 @@ class HeartActivity : AppCompatActivity() {
     fun onClickNewMeasurement() {
         analyzer = OutputAnalyzer(this, findViewById(R.id.heart_rate_bar), mainHandler)
         findViewById<TextView>(R.id.pulse_value).text = ""
-        setViewState(VIEW_STATE.MEASUREMENT)
+        setViewState(ViewState.MEASUREMENT)
 
         sessionStartTime = ZonedDateTime.now()
 
@@ -91,20 +99,13 @@ class HeartActivity : AppCompatActivity() {
     }
 
 
-    fun setViewState(state: VIEW_STATE) {
-        val appMenu = findViewById<Toolbar>(R.id.toolbar)?.menu
+    fun setViewState(state: ViewState) {
         when (state) {
-            VIEW_STATE.MEASUREMENT -> {
-                appMenu?.getItem(MENU_INDEX_NEW_MEASUREMENT)?.isVisible = false
-                appMenu?.getItem(MENU_INDEX_EXPORT_RESULT)?.isVisible = false
-                appMenu?.getItem(MENU_INDEX_EXPORT_DETAILS)?.isVisible = false
+            ViewState.MEASUREMENT -> {
                 findViewById<View>(R.id.floatingActionButton)?.visibility = View.INVISIBLE
             }
-            VIEW_STATE.SHOW_RESULTS -> {
+            ViewState.SHOW_RESULTS -> {
                 findViewById<View>(R.id.floatingActionButton)?.visibility = View.VISIBLE
-                appMenu?.getItem(MENU_INDEX_EXPORT_RESULT)?.isVisible = true
-                appMenu?.getItem(MENU_INDEX_EXPORT_DETAILS)?.isVisible = true
-                appMenu?.getItem(MENU_INDEX_NEW_MEASUREMENT)?.isVisible = true
             }
         }
     }
@@ -113,12 +114,10 @@ class HeartActivity : AppCompatActivity() {
         const val MESSAGE_UPDATE_REALTIME = 1
         const val MESSAGE_UPDATE_FINAL = 2
         const val MESSAGE_CAMERA_NOT_AVAILABLE = 3
-        private const val MENU_INDEX_NEW_MEASUREMENT = 0
-        private const val MENU_INDEX_EXPORT_RESULT = 1
-        private const val MENU_INDEX_EXPORT_DETAILS = 2
+
     }
 
-    enum class VIEW_STATE {
+    enum class ViewState {
         MEASUREMENT,
         SHOW_RESULTS
     }

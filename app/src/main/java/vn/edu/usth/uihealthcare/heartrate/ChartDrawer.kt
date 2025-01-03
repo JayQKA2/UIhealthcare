@@ -1,4 +1,4 @@
-package com.example.myapplication
+package vn.edu.usth.uihealthcare.heartrate
 
 import vn.edu.usth.uihealthcare.model.Measurement
 import android.graphics.Color

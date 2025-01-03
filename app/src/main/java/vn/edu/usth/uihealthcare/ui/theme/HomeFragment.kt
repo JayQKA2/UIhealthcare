@@ -42,7 +42,7 @@ class HomeFragment : Fragment() {
             navController.navigate(R.id.action_steps)
         }
 
-        view.findViewById<View>(R.id.heart_pressure).setOnClickListener { v: View ->
+        view.findViewById<View>(R.id.heart_pressure).setOnClickListener {
             val intent = Intent(context, HeartActivity::class.java)
             startActivity(intent)
         }
