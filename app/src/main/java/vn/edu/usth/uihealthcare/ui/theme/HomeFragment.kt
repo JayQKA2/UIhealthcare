@@ -51,10 +51,10 @@ class HomeFragment : Fragment() {
             val navController: NavController = Navigation.findNavController(v)
             navController.navigate(R.id.action_sleep)
         }
-        view.findViewById<View>(R.id.sleepCard2).setOnClickListener { v: View ->
-            val navController: NavController = Navigation.findNavController(v)
-            navController.navigate(R.id.action_sleep2)
-        }
+//        view.findViewById<View>(R.id.sleepCard2).setOnClickListener { v: View ->
+//            val navController: NavController = Navigation.findNavController(v)
+//            navController.navigate(R.id.action_sleep2)
+//        }
 
         return view
     }
