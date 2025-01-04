@@ -66,7 +66,11 @@ class HealthConnectManager(private val context: Context) {
         HealthPermission.getWritePermission(WeightRecord::class),
         HealthPermission.getReadPermission(WeightRecord::class),
         HealthPermission.getReadPermission(HeartRateRecord::class),
-        HealthPermission.getReadPermission(SleepSessionRecord::class)
+        HealthPermission.getReadPermission(SleepSessionRecord::class),
+        HealthPermission.getWritePermission(SleepSessionRecord::class)
+
+
+
 
     )
 

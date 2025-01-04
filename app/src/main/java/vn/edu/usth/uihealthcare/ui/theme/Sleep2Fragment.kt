@@ -1,7 +1,11 @@
 package vn.edu.usth.uihealthcare.ui.theme
 
 import android.annotation.SuppressLint
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.app.TimePickerDialog
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -28,6 +32,8 @@ class Sleep2Fragment : Fragment() {
             handler.postDelayed(this, 1000) // Cập nhật mỗi giây
         }
     }
+    private var sleepHour: Int = 0
+    private var sleepMinute: Int = 0
 
     @SuppressLint("MissingInflatedId")
     override fun onCreateView(
@@ -49,14 +55,33 @@ class Sleep2Fragment : Fragment() {
             // Hiển thị TimePickerDialog
             val timePickerDialog = TimePickerDialog(requireContext(),
                 { _, selectedHour, selectedMinute ->
+                    sleepHour = selectedHour
+                    sleepMinute = selectedMinute
 
                     val sleepTime = String.format("%02d:%02d", selectedHour, selectedMinute)
                     tvSleepTime.text = "Giờ đi ngủ: $sleepTime"
+                    setAlarm(selectedHour, selectedMinute)
                 }, hour, minute, true)
             timePickerDialog.show()
         }
 
         return view
+    }
+    private fun setAlarm(hour: Int, minute: Int) {
+        val alarmManager = requireActivity().getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(requireContext(), AlarmReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(requireContext(), 0, intent, 0)
+
+        // Thiết lập alarm
+        val calendar = Calendar.getInstance().apply {
+            timeInMillis = System.currentTimeMillis()
+            set(Calendar.HOUR_OF_DAY, hour)
+            set(Calendar.MINUTE, minute)
+            set(Calendar.SECOND, 0)
+        }
+
+        // Thiết lập alarm
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
     }
     override fun onStart() {
         super.onStart()

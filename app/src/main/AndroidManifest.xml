@@ -30,6 +30,8 @@
     <uses-permission android:name="android.permission.health.READ_WEIGHT" />
     <uses-permission android:name="android.permission.health.READ_EXERCISE_ROUTES"/>
     <uses-permission android:name="android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND" />
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.health.WRITE_SLEEP" />
 
     <application
         android:enableOnBackInvokedCallback="true"
@@ -77,7 +79,7 @@
                 <category android:name="android.intent.category.HEALTH_PERMISSIONS" />
             </intent-filter>
         </activity-alias>
-
+        <receiver android:name=".ui.theme.AlarmReceiver" />
     </application>
 
 </manifest>
