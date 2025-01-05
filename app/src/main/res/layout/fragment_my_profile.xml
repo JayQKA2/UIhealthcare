@@ -36,17 +36,29 @@
 
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/cardView2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
         android:layout_marginTop="20dp"
+        android:backgroundTint="#FFFFFF"
+        android:padding="10dp"
+        app:cardCornerRadius="20dp"
+        app:layout_constraintTop_toBottomOf="@id/cardView1"
+        tools:layout_editor_absoluteX="10dp"/>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:backgroundTint="#FFFFFF"
+        android:padding="10dp"
         app:cardCornerRadius="20dp"
         app:layout_constraintTop_toBottomOf="@id/text1"
-        android:padding="10dp"
-        android:backgroundTint="#FFFFFF">
+        tools:layout_editor_absoluteX="10dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/khung1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="16dp">
@@ -56,36 +68,36 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Weekly summary"
-                android:textStyle="bold"
                 android:textColor="@color/black"
                 android:textSize="18sp"
+                android:textStyle="bold"
                 tools:ignore="MissingConstraints" />
 
             <TextView
                 android:id="@+id/text3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/text2"
                 android:text="From 04/11 to 10/11"
                 android:textSize="12sp"
+                app:layout_constraintTop_toBottomOf="@id/text2"
                 tools:ignore="MissingConstraints" />
 
             <TextView
                 android:id="@+id/text4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/text3"
                 android:text="Average working time"
-                android:textSize="15sp"
                 android:textColor="@color/black"
+                android:textSize="15sp"
+                app:layout_constraintTop_toBottomOf="@id/text3"
                 tools:ignore="MissingConstraints" />
 
             <TextView
                 android:id="@+id/text5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="---------------------"
                 android:layout_marginStart="20dp"
+                android:text="---------------------"
                 app:layout_constraintLeft_toRightOf="@id/text4"
                 app:layout_constraintTop_toBottomOf="@id/text3"
                 tools:ignore="MissingConstraints" />
@@ -94,19 +106,90 @@
                 android:id="@+id/text6"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="1000 minutes"
                 android:layout_marginStart="20dp"
+                android:text="1000 minutes"
                 android:textColor="@color/black"
                 android:textStyle="bold"
                 app:layout_constraintLeft_toRightOf="@id/text5"
                 app:layout_constraintTop_toBottomOf="@id/text3"
                 tools:ignore="MissingConstraints" />
 
+            <TextView
+                android:id="@+id/text7"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Average working time"
+                android:textColor="@color/black"
+                android:textSize="15sp"
+                app:layout_constraintTop_toBottomOf="@id/text6"
+                tools:ignore="MissingConstraints"
+                tools:layout_editor_absoluteX="0dp" />
+
+            <TextView
+                android:id="@+id/text8"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="24dp"
+                android:text="---------------------"
+                app:layout_constraintLeft_toRightOf="@id/text7"
+                app:layout_constraintTop_toBottomOf="@id/text6"
+                tools:ignore="MissingConstraints" />
+
+            <TextView
+                android:id="@+id/text9"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="24dp"
+                android:text="1000 minutes"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                app:layout_constraintLeft_toRightOf="@id/text8"
+                app:layout_constraintTop_toBottomOf="@id/text6"
+                tools:ignore="MissingConstraints" />
+
+            <TextView
+                android:id="@+id/text10"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Average working time"
+                android:textColor="@color/black"
+                android:textSize="15sp"
+                app:layout_constraintTop_toBottomOf="@id/text9"
+                tools:ignore="MissingConstraints"
+                tools:layout_editor_absoluteX="0dp" />
+
+            <TextView
+                android:id="@+id/text11"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="24dp"
+                android:text="---------------------"
+                app:layout_constraintLeft_toRightOf="@id/text10"
+                app:layout_constraintTop_toBottomOf="@id/text9"
+                tools:ignore="MissingConstraints" />
+
+            <TextView
+                android:id="@+id/text12"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="24dp"
+                android:text="1000 minutes"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                app:layout_constraintLeft_toRightOf="@id/text11"
+                app:layout_constraintTop_toBottomOf="@id/text9"
+                tools:ignore="MissingConstraints" />
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+
     </androidx.cardview.widget.CardView>
-
-
 
 
 

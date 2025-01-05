@@ -8,7 +8,6 @@
     <fragment
         android:id="@+id/navigation_home"
         android:name="vn.edu.usth.uihealthcare.ui.theme.HomeFragment"
-
         android:label="@string/title_home"
         tools:layout="@layout/fragment_home">
         <action
@@ -16,13 +15,13 @@
             app:destination="@id/navigation_heart" />
         <action
             android:id="@+id/action_steps"
-            app:destination="@id/navigation_step" />
+            app:destination="@id/stepsActivity" />
         <action
             android:id="@+id/action_sleep"
             app:destination="@id/navigation_sleep"/>
-        <action
-            android:id="@+id/action_test"
-            app:destination="@+id/navigation_test"/>
+<!--        <action-->
+<!--            android:id="@+id/action_test"-->
+<!--            app:destination="@id/navigation_test"/>-->
     </fragment>
 
     <fragment
@@ -33,7 +32,7 @@
 
     <fragment
         android:id="@+id/navigation_settings"
-        android:name="vn.edu.usth.uihealthcare.ui.theme.SettingsFragment"
+        android:name="vn.edu.usth.uihealthcare.ui.theme.Settings.SettingsFragment"
         android:label="@string/settings"
         tools:layout="@layout/fragment_settings">
         <action
@@ -43,7 +42,7 @@
 
     <fragment
         android:id="@+id/navigation_measurement"
-        android:name="vn.edu.usth.uihealthcare.ui.theme.MeasurementFragment"
+        android:name="vn.edu.usth.uihealthcare.ui.theme.Settings.MeasurementFragment"
         android:label="Measurement Units"
         tools:layout="@layout/fragment_measurement"/>
 
@@ -51,16 +50,17 @@
         android:id="@+id/navigation_heart"
         android:name="vn.edu.usth.uihealthcare.ui.theme.HeartFragment"
         android:label="Heart"
-        tools:layout="@layout/fragment_heart"/>
+        tools:layout="@layout/activity_heart"/>
 
-    <fragment
-        android:id="@+id/navigation_test"
-        android:label="Steps"
-        tools:layout="@layout/recycle_view_testdb"/>
+<!--    <fragment-->
+<!--        android:id="@+id/navigation_test"-->
+<!--        android:name="vn.edu.usth.uihealthcare.ui.theme.TestFragment"-->
+<!--        android:label="Steps"-->
+<!--        tools:layout="@layout/recycle_view_testdb"/>-->
 
     <fragment
         android:id="@+id/navigation_sleep"
-        android:name="vn.edu.usth.uihealthcare.ui.theme.SleepFragment"
+        android:name="vn.edu.usth.uihealthcare.ui.theme.activity.SleepFragment"
         android:label="Sleep"
         tools:layout="@layout/fragment_sleep">
         <action
@@ -68,16 +68,28 @@
             app:destination="@id/navigation_sleep2"/>
     </fragment>
 
-    <fragment
-        android:id="@+id/navigation_step"
-        android:name="vn.edu.usth.uihealthcare.ui.theme.StepFragment"
-        android:label="Step"
-        tools:layout="@layout/fragment_step"/>
+<!--    <fragment-->
+<!--        android:id="@+id/navigation_step"-->
+<!--        android:name="vn.edu.usth.uihealthcare.ui.theme.activity.StepsActivity"-->
+<!--        android:label="Step"-->
+<!--        tools:layout="@layout/activity_steps"/>-->
 
     <fragment
         android:id="@+id/navigation_sleep2"
         android:name="vn.edu.usth.uihealthcare.ui.theme.Sleep2Fragment"
         android:label="weekly check"
         tools:layout="@layout/fragment_sleep2"/>
+    <activity
+        android:id="@+id/heartActivity"
+        android:name="vn.edu.usth.uihealthcare.ui.theme.activity.HeartActivity"
+        android:label="HeartActivity" />
+    <activity
+        android:id="@+id/mainActivity"
+        android:name="vn.edu.usth.uihealthcare.MainActivity"
+        android:label="MainActivity" />
+    <activity
+        android:id="@+id/stepsActivity"
+        android:name="vn.edu.usth.uihealthcare.ui.theme.activity.StepsActivity"
+        android:label="StepsActivity" />
 
 </navigation>
