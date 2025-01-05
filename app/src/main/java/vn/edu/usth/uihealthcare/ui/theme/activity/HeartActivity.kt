@@ -18,8 +18,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import vn.edu.usth.uihealthcare.R
 import vn.edu.usth.uihealthcare.sensor.CameraService
@@ -33,6 +32,7 @@ class HeartActivity : AppCompatActivity() {
     private lateinit var toolbar: Toolbar
     private lateinit var healthConnectManager: HealthConnectManager
     private var sessionEndTime: ZonedDateTime? = null
+    private var heart_value: TextView? = null
 
 
 
@@ -82,6 +82,7 @@ class HeartActivity : AppCompatActivity() {
         setContentView(R.layout.activity_heart)
         toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
+        heart_value = findViewById(R.id.heartnumber)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         checkpermission()
 
@@ -92,7 +93,7 @@ class HeartActivity : AppCompatActivity() {
         startButton.setOnClickListener { onClickNewMeasurement() }
 
         healthConnectManager = HealthConnectManager(this)
-        readHeartRateData()
+        fetchHeartRate()
     }
 
     override fun onResume() {
@@ -139,26 +140,30 @@ class HeartActivity : AppCompatActivity() {
         }
     }
 
-    private fun readHeartRateData() {
-        val startTime = sessionStartTime?.toInstant() ?: Instant.now()
-        val endTime = sessionEndTime?.toInstant() ?: Instant.now()
-
-        CoroutineScope(Dispatchers.IO).launch {
+    @SuppressLint("SetTextI18n")
+    private fun fetchHeartRate() {
+        lifecycleScope.launch {
             try {
-                val records = healthConnectManager.readHeartRateRecords(startTime, endTime)
-                Log.d("HeartActivity", "Read ${records.size} heart rate records")
-                runOnUiThread {
-                    findViewById<TextView>(R.id.heartnumber).text =
-                        "Heart rate records: ${records.size}"
+                val endTime = Instant.now()
+                val startTime = endTime.minusSeconds(60 * 60 * 24)
+
+                val heartRateRecord = healthConnectManager.readHeartRateRecords(startTime, endTime)
+
+                if (heartRateRecord.isNotEmpty()) {
+                    val latestHeartRate = heartRateRecord.first()
+
+                    val pulse = latestHeartRate.samples.first().beatsPerMinute
+
+                    heart_value!!.text = "Weight: $pulse bpm"
+                } else {
+                    heart_value!!.text = "No weight data found."
                 }
             } catch (e: Exception) {
-                Log.e("HeartActivity", "Failed to read heart rate records", e)
-                runOnUiThread {
-                    findViewById<TextView>(R.id.heartnumber).text = "Failed to read data"
-                }
+                heart_value!!.text = "Failed to fetch weight data: ${e.message}"
             }
         }
     }
+
 
     companion object {
         const val MESSAGE_UPDATE_REALTIME = 1

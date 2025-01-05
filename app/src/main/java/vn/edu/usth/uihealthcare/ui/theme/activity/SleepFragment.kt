@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,19 +16,15 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
-import androidx.health.connect.client.HealthConnectClient
 import kotlinx.coroutines.launch
 import vn.edu.usth.uihealthcare.R
 import vn.edu.usth.uihealthcare.utils.HealthConnectManager
-import java.time.Instant
-import java.time.ZoneOffset
 import java.util.Calendar
 
 class SleepFragment : Fragment() {
 
     private val handler = Handler(Looper.getMainLooper())
     private lateinit var healthConnectManager: HealthConnectManager
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -81,42 +76,6 @@ class SleepFragment : Fragment() {
 
         return view
     }
-
-    private fun recordWeight(startTime: Instant, endTime: Instant) {
-        lifecycleScope.launch {
-            try {
-                val startZonedDateTime = startTime.atZone(ZoneOffset.UTC)
-                val endZonedDateTime = endTime.atZone(ZoneOffset.UTC)
-
-                val healthConnectClient = HealthConnectClient.getOrCreate(requireContext())
-                healthConnectManager.writeSleepSession(healthConnectClient, startZonedDateTime, endZonedDateTime)
-
-                Toast.makeText(requireContext(), "Sleep session saved", Toast.LENGTH_SHORT).show()
-            } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Failed to save sleep session: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    private fun readWeight(startTime: Instant, endTime: Instant) {
-        lifecycleScope.launch {
-            try {
-                val healthConnectClient = HealthConnectClient.getOrCreate(requireContext())
-
-                val sleepSessions = healthConnectManager.readSleepSession(
-                    healthConnectClient,
-                    startTime,
-                    endTime
-                )
-
-                Log.d("SleepFragment", "Read sleep sessions: $sleepSessions")
-            } catch (e: Exception) {
-                Log.e("SleepFragment", "Failed to read sleep sessions: ${e.message}")
-            }
-        }
-    }
-
-
 
 
     override fun onDestroy() {
