@@ -103,7 +103,7 @@
             <Button
                 android:id="@+id/diagnosticButton"
                 android:layout_width="wrap_content"
-                android:layout_height="37dp"
+                android:layout_height="40dp"
                 android:layout_alignParentBottom="true"
                 android:background="@drawable/rounded"
                 android:text="Diagnostic"
@@ -256,7 +256,6 @@
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_running" />
 
-
             <TextView
                 android:id="@+id/doctorSpecialty"
                 android:layout_width="wrap_content"
@@ -275,7 +274,8 @@
                 android:text="20000 steps"
                 android:textSize="34sp"/>
 
-
         </RelativeLayout>
     </androidx.cardview.widget.CardView>
+
+
 </RelativeLayout>
