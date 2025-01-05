@@ -14,7 +14,12 @@ import android.hardware.SensorManager
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import vn.edu.usth.uihealthcare.R
+import vn.edu.usth.uihealthcare.utils.HealthConnectManager
+import java.time.ZonedDateTime
 import kotlin.math.sqrt
 
 class StepsSensorService : Service(), SensorEventListener {
@@ -27,18 +32,23 @@ class StepsSensorService : Service(), SensorEventListener {
     private var isHaveStepCounter = true
     private var lastStepTime: Long = 0
     private val stepInterval = 50
+    private lateinit var healthConnectManager: HealthConnectManager
 
     companion object {
-        private const val TAG = "MM_StepsSensorService"
+        private const val TAG = "Steps"
         private const val CHANNEL_ID = "steps_sensor_service_channel"
     }
 
     @SuppressLint("ForegroundServiceType")
     override fun onCreate() {
         super.onCreate()
-        createNotificationChannel()
 
-        sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        val context = applicationContext
+        sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+
+        healthConnectManager = HealthConnectManager(context)
+
+        createNotificationChannel()
         val sensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
             ?: sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER).also {
                 isHaveStepCounter = false
@@ -92,6 +102,18 @@ class StepsSensorService : Service(), SensorEventListener {
             steps = eventSteps
             sendStepCountToFragment(steps)
             updateNotification(steps)
+
+            val startTime = ZonedDateTime.now()
+            val endTime = startTime.plusMinutes(1)
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    healthConnectManager.writeStepsInput(startTime, endTime, steps.toLong())        // If using step counter
+
+//                    Log.d(TAG, "Successfully updated ")
+                } catch (e: Exception) {
+//                    Log.e(TAG, "Error writing steps data: ${e.message}")
+                }
+            }
         }
     }
 
@@ -109,6 +131,18 @@ class StepsSensorService : Service(), SensorEventListener {
                 stepCount++
                 sendStepCountToFragment(stepCount)
                 updateNotification(stepCount)
+            }
+
+            val startTime = ZonedDateTime.now()
+            val endTime = startTime.plusMinutes(1)
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    healthConnectManager.writeStepsInput(startTime, endTime, stepCount.toLong())        // If using accelerometer
+
+//                    Log.d(TAG, "Successfully updated ")
+                } catch (e: Exception) {
+//                    Log.e(TAG, "Error writing steps data: ${e.message}")
+                }
             }
         }
     }

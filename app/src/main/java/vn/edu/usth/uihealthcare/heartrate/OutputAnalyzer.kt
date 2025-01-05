@@ -1,15 +1,23 @@
+package vn.edu.usth.uihealthcare.heartrate
+
 import android.os.CountDownTimer
 import android.os.Handler
 import android.os.Message
 import android.view.TextureView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import vn.edu.usth.uihealthcare.sensor.CameraService
-import vn.edu.usth.uihealthcare.heartrate.ChartDrawer
 import vn.edu.usth.uihealthcare.MainActivity
 import vn.edu.usth.uihealthcare.R
 import vn.edu.usth.uihealthcare.model.MeasureStore
-import vn.edu.usth.uihealthcare.ui.theme.HeartActivity
+import vn.edu.usth.uihealthcare.ui.theme.activity.HeartActivity
+import vn.edu.usth.uihealthcare.utils.HealthConnectManager
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
+import kotlin.math.ceil
 
 class OutputAnalyzer(private val activity: HeartActivity, graphTextureView: TextureView, private val mainHandler: Handler) {
 
@@ -25,6 +33,9 @@ class OutputAnalyzer(private val activity: HeartActivity, graphTextureView: Text
 
     private val valleys = CopyOnWriteArrayList<Long>()
     private var timer: CountDownTimer? = null
+    private val healthConnectManager = HealthConnectManager(activity)
+
+
 
     private fun detectValley(): Boolean {
         val valleyDetectionWindowSize = 13
@@ -33,13 +44,13 @@ class OutputAnalyzer(private val activity: HeartActivity, graphTextureView: Text
         if (subList.size < valleyDetectionWindowSize) {
             return false
         } else {
-            val referenceValue = subList[(Math.ceil((valleyDetectionWindowSize / 2f).toDouble()) - 1).toInt()].measurement
+            val referenceValue = subList[(ceil((valleyDetectionWindowSize / 2f).toDouble()) - 1).toInt()].measurement
             for (measurement in subList) {
                 if (measurement.measurement < referenceValue) return false
             }
 
-            return subList[(Math.ceil((valleyDetectionWindowSize / 2f).toDouble()) - 1).toInt()].measurement !=
-                    subList[(Math.ceil((valleyDetectionWindowSize / 2f).toDouble()) - 2).toInt()].measurement
+            return subList[(ceil((valleyDetectionWindowSize / 2f).toDouble()) - 1).toInt()].measurement !=
+                    subList[(ceil((valleyDetectionWindowSize / 2f).toDouble()) - 2).toInt()].measurement
         }
     }
 
@@ -73,9 +84,9 @@ class OutputAnalyzer(private val activity: HeartActivity, graphTextureView: Text
                             Locale.getDefault(),
                             activity.resources.getQuantityString(R.plurals.measurement_output_template, detectedValleys),
                             if (valleys.size == 1) {
-                                60f * detectedValleys / (Math.max(1f, (measurementLength - millisUntilFinished - clipLength) / 1000f))
+                                60f * detectedValleys / (1f.coerceAtLeast((measurementLength - millisUntilFinished - clipLength) / 1000f))
                             } else {
-                                60f * (detectedValleys - 1) / (Math.max(1f, (valleys.last() - valleys.first()) / 1000f))
+                                60f * (detectedValleys - 1) / (1f.coerceAtLeast((valleys.last() - valleys.first()) / 1000f))
                             },
                             detectedValleys,
                             1f * (measurementLength - millisUntilFinished - clipLength) / 1000f
@@ -98,7 +109,7 @@ class OutputAnalyzer(private val activity: HeartActivity, graphTextureView: Text
                     return
                 }
 
-                val averageHeartRate = 60f * (detectedValleys - 1) / (Math.max(1f, (valleys.last() - valleys.first()) / 1000f))
+                val averageHeartRate = 60f * (detectedValleys - 1) / (1f.coerceAtLeast((valleys.last() - valleys.first()) / 1000f))
 
                 val currentValue = String.format(
                     Locale.getDefault(),
@@ -108,6 +119,16 @@ class OutputAnalyzer(private val activity: HeartActivity, graphTextureView: Text
 
                 sendMessage(HeartActivity.MESSAGE_UPDATE_FINAL, currentValue)
 
+                val sessionStartTime = ZonedDateTime.now(ZoneOffset.UTC)
+                val sessionEndTime = ZonedDateTime.now()
+
+                CoroutineScope(Dispatchers.Main).launch {
+                    healthConnectManager.writeHeartRateSession(
+                        averageHeartRate,
+                        sessionStartTime,
+                        sessionEndTime
+                    )
+                }
                 cameraService.stop()
             }
         }

@@ -33,7 +33,7 @@
 
     <fragment
         android:id="@+id/navigation_settings"
-        android:name="vn.edu.usth.uihealthcare.ui.theme.SettingsFragment"
+        android:name="vn.edu.usth.uihealthcare.ui.theme.Settings.SettingsFragment"
         android:label="@string/settings"
         tools:layout="@layout/fragment_settings">
         <action
@@ -43,7 +43,7 @@
 
     <fragment
         android:id="@+id/navigation_measurement"
-        android:name="vn.edu.usth.uihealthcare.ui.theme.MeasurementFragment"
+        android:name="vn.edu.usth.uihealthcare.ui.theme.Settings.MeasurementFragment"
         android:label="Measurement Units"
         tools:layout="@layout/fragment_measurement"/>
 
@@ -59,7 +59,7 @@
 
     <fragment
         android:id="@+id/navigation_sleep"
-        android:name="vn.edu.usth.uihealthcare.ui.theme.SleepFragment"
+        android:name="vn.edu.usth.uihealthcare.ui.theme.activity.SleepFragment"
         android:label="Sleep"
         tools:layout="@layout/fragment_sleep">
         <action
@@ -69,9 +69,8 @@
 
     <fragment
         android:id="@+id/navigation_step"
-        android:name="vn.edu.usth.uihealthcare.ui.theme.StepFragment"
         android:label="Step"
-        tools:layout="@layout/fragment_step"/>
+        tools:layout="@layout/activity_steps"/>
 
     <fragment
         android:id="@+id/navigation_sleep2"

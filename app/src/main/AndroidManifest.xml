@@ -16,18 +16,26 @@
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <uses-permission android:name="com.google.android.gms.permission.HEALTH_CONNECT" />
+
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.BODY_SENSORS"/>
     <uses-permission android:name="android.permission.NEARBY_DEVICES" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <uses-permission android:name="android.permission.health.READ_STEPS"/>
     <uses-permission android:name="android.permission.health.WRITE_STEPS" />
-    <uses-permission android:name="android.permission.health.READ_EXERCISE" />
+
     <uses-permission android:name="android.permission.health.READ_SLEEP" />
     <uses-permission android:name="android.permission.health.READ_DISTANCE" />
+
     <uses-permission android:name="android.permission.health.WRITE_WEIGHT" />
     <uses-permission android:name="android.permission.health.READ_WEIGHT" />
+
+    <uses-permission android:name="android.permission.health.WRITE_HEART_RATE" />
+    <uses-permission android:name="android.permission.health.READ_HEART_RATE" />
+
     <uses-permission android:name="android.permission.health.READ_EXERCISE_ROUTES"/>
     <uses-permission android:name="android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND" />
 
@@ -63,7 +71,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.theme.HeartActivity"></activity>
+        <activity android:name=".ui.theme.activity.HeartActivity" />
+        <activity android:name=".ui.theme.activity.StepsActivity" />
 
 
 

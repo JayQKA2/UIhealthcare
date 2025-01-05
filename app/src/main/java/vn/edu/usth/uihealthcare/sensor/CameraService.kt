@@ -75,7 +75,6 @@ class CameraService(private val activity: Activity, private val handler: Handler
                     }
 
                     try {
-                        // Deprecated in API 30, but keeping it for backward compatibility.
                         camera.createCaptureSession(Collections.singletonList(previewSurface), stateCallback, null)
                     } catch (e: CameraAccessException) {
                         e.message?.let { Log.e("camera", it) }

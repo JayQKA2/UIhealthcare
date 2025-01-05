@@ -1,24 +1,20 @@
 package vn.edu.usth.uihealthcare
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.os.PowerManager
-import android.provider.Settings
 import android.util.Log
 import android.view.View
+import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.coroutines.launch
 import vn.edu.usth.uihealthcare.sensor.CameraService
 import vn.edu.usth.uihealthcare.sensor.StepsSensorService
 import vn.edu.usth.uihealthcare.utils.HealthConnectManager
@@ -29,10 +25,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var bottomNavigationBar: BottomNavigationView
     private lateinit var toolbar: Toolbar
     private lateinit var cameraService: CameraService
-
-    private val PHYSICAL_ACTIVITY_REQUEST_CODE = 100
-    private val CAMERA_REQUEST_CODE = 100
-
+    private lateinit var mainViewModel: MainViewModel
+    private lateinit var permissionLauncher: ActivityResultLauncher<Set<String>>
 
     private val hiddenBottomNavDestinations = setOf(
         R.id.navigation_heart,
@@ -42,90 +36,50 @@ class MainActivity : AppCompatActivity() {
         R.id.navigation_heart,
         R.id.navigation_measurement,
         R.id.navigation_sleep2,
-
     )
 
     @SuppressLint("MissingPermission", "BatteryLife")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        checkAndRequestActivityRecognitionPermission()
+        mainViewModel = ViewModelProvider(this)[MainViewModel::class.java]
+
+        permissionLauncher = registerForActivityResult(
+            healthConnectManager.requestPermissionsActivityContract()
+        ) { grantedPermissions ->
+            if (grantedPermissions.containsAll(healthConnectManager.permission)) {
+                Log.d("HEALTH_CONNECT", "Permissions granted!")
+            } else {
+                Log.d("HEALTH_CONNECT", "Permissions denied!")
+            }
+        }
+
+        checkAndRequestHealthConnectPermissions()
         setupUI()
         setupNavigation()
-        checkAndRequestCameraPermission()
 
         val serviceIntent = Intent(this, StepsSensorService::class.java)
-        startForegroundService(serviceIntent)
+        startService(serviceIntent)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.d("MM_StepsSensorService1", "onDestroy: ")
         stopService(Intent(this, StepsSensorService::class.java))
         cameraService.stop()
     }
 
-    private fun checkAndRequestActivityRecognitionPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            if (ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.ACTIVITY_RECOGNITION
-                ) == PackageManager.PERMISSION_GRANTED
-            ) {
-                onPermissionGranted()
-            } else {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.ACTIVITY_RECOGNITION),
-                    PHYSICAL_ACTIVITY_REQUEST_CODE
-                )
-            }
-        } else {
-            onPermissionGranted()
-        }
-    }
-
-    private fun checkAndRequestCameraPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            if (ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.CAMERA
-                ) == PackageManager.PERMISSION_GRANTED
-            ) {
-                onPermissionGranted()
-            } else {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.CAMERA),
-                    CAMERA_REQUEST_CODE
-                )
-            }
-        } else {
-            onPermissionGranted()
-        }
-    }
-
-    private fun onPermissionGranted() {
-        Log.d("MM_StepsSensorService1", "onRequestPermissionsResult:Permission granted! ")
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == PHYSICAL_ACTIVITY_REQUEST_CODE) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                onPermissionGranted()
-            } else {
-                Log.d("MM_StepsSensorService1", "onRequestPermissionsResult:Permission denied! ")
+    private fun checkAndRequestHealthConnectPermissions() {
+        val requiredPermissions = healthConnectManager.permission
+        lifecycleScope.launch {
+            val hasPermissions = healthConnectManager.hasAllPermissions(requiredPermissions)
+            if (!hasPermissions) {
+                permissionLauncher.launch(requiredPermissions)
             }
         }
     }
 
     private val healthConnectManager by lazy {
-        HealthConnectManager(this)
+        HealthConnectManager(this) // Khởi tạo HealthConnectManager khi cần
     }
 
     private fun setupUI() {
