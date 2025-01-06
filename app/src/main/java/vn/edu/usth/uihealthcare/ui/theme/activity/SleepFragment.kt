@@ -1,29 +1,26 @@
 package vn.edu.usth.uihealthcare.ui.theme.activity
 
 import android.annotation.SuppressLint
+import android.app.TimePickerDialog
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavController
-import androidx.navigation.Navigation
 import androidx.health.connect.client.HealthConnectClient
+import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.launch
 import vn.edu.usth.uihealthcare.R
 import vn.edu.usth.uihealthcare.utils.HealthConnectManager
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
 
@@ -31,6 +28,8 @@ class SleepFragment : Fragment() {
 
     private val handler = Handler(Looper.getMainLooper())
     private lateinit var healthConnectManager: HealthConnectManager
+    private var sleepStartTime: LocalDateTime? = null
+    private var sleepEndTime: LocalDateTime? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -40,15 +39,13 @@ class SleepFragment : Fragment() {
 
         val timeDisplay: TextView = view.findViewById(R.id.time_display)
         val weeklyCheckCard: CardView = view.findViewById(R.id.weekly_check_card)
-        val weightInputEditText: EditText = view.findViewById(R.id.weight_input_edit_text)
-        val saveWeightButton: Button = view.findViewById(R.id.save_weight_button)
-        val sleepStartInput: EditText = view.findViewById(R.id.sleep_start_input)
-        val sleepEndInput: EditText = view.findViewById(R.id.sleep_end_input)
+
+        val sleepStartButton: Button = view.findViewById(R.id.sleep_start_button)
+        val sleepEndButton: Button = view.findViewById(R.id.sleep_end_button)
         val saveSleepButton: Button = view.findViewById(R.id.save_sleep_button)
 
         healthConnectManager = HealthConnectManager(requireContext())
 
-        // Update current time every second
         val updateTime = object : Runnable {
             @SuppressLint("DefaultLocale")
             override fun run() {
@@ -64,70 +61,54 @@ class SleepFragment : Fragment() {
         }
         handler.post(updateTime)
 
-        // Save weight button logic
-        saveWeightButton.setOnClickListener {
-            val weightInputText = weightInputEditText.text.toString()
-            if (weightInputText.isNotEmpty()) {
-                val weight = weightInputText.toDouble()
-                lifecycleScope.launch {
-                    try {
-                        healthConnectManager.writeWeightInput(weight)
-                        Toast.makeText(requireContext(), "Weight saved successfully.", Toast.LENGTH_SHORT).show()
-                    } catch (e: Exception) {
-                        Toast.makeText(requireContext(), "Failed to save weight: ${e.message}", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            } else {
-                Toast.makeText(requireContext(), "Please enter a valid weight", Toast.LENGTH_SHORT).show()
+        sleepStartButton.setOnClickListener {
+            showTimePicker { time ->
+                sleepStartTime = time
+                sleepStartButton.text = "Start: ${time.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))}"
             }
         }
 
-        // Save sleep button logic
-        saveSleepButton.setOnClickListener {
-            val startTimeText = sleepStartInput.text.toString()
-            val endTimeText = sleepEndInput.text.toString()
+        sleepEndButton.setOnClickListener {
+            showTimePicker { time ->
+                sleepEndTime = time
+                sleepEndButton.text = "End: ${time.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))}"
+            }
+        }
 
-            if (startTimeText.isNotEmpty() && endTimeText.isNotEmpty()) {
+        saveSleepButton.setOnClickListener {
+            if (sleepStartTime != null && sleepEndTime != null && sleepEndTime!!.isAfter(sleepStartTime)) {
                 lifecycleScope.launch {
                     try {
-                        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
-                        val startDateTime = LocalDateTime.parse(startTimeText, formatter)
-                            .atZone(ZoneId.systemDefault())
-                        val endDateTime = LocalDateTime.parse(endTimeText, formatter)
-                            .atZone(ZoneId.systemDefault())
-
-                        if (endDateTime.isAfter(startDateTime)) {
-                            healthConnectManager.writeSleepSession(
-                                healthConnectClient = HealthConnectClient.getOrCreate(requireContext()),
-                                start = startDateTime,
-                                end = endDateTime
-                            )
-                            Toast.makeText(requireContext(), "Sleep session saved successfully.", Toast.LENGTH_SHORT).show()
-                        } else {
-                            Toast.makeText(requireContext(), "End time must be after start time.", Toast.LENGTH_SHORT).show()
-                        }
+                        healthConnectManager.writeSleepSession(
+                            healthConnectClient = HealthConnectClient.getOrCreate(requireContext()),
+                            start = sleepStartTime!!.atZone(ZoneId.systemDefault()),
+                            end = sleepEndTime!!.atZone(ZoneId.systemDefault())
+                        )
+                        Toast.makeText(requireContext(), "Sleep session saved successfully.", Toast.LENGTH_SHORT).show()
                     } catch (e: Exception) {
                         Toast.makeText(requireContext(), "Failed to save sleep session: ${e.message}", Toast.LENGTH_SHORT).show()
                     }
                 }
             } else {
-                Toast.makeText(requireContext(), "Please provide both start and end times.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Please select valid start and end times.", Toast.LENGTH_SHORT).show()
             }
-        }
-
-
-
-        // Weekly check navigation logic
-        weeklyCheckCard.setOnClickListener { v: View ->
-            val navController: NavController = Navigation.findNavController(v)
-            navController.navigate(R.id.action_sleep2)
         }
 
         return view
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        handler.removeCallbacksAndMessages(null)
+    private fun showTimePicker(onTimeSelected: (LocalDateTime) -> Unit) {
+        val calendar = Calendar.getInstance()
+        TimePickerDialog(
+            requireContext(),
+            { _, hourOfDay, minute ->
+                val now = LocalDateTime.now()
+                val time = now.withHour(hourOfDay).withMinute(minute).withSecond(0).withNano(0)
+                onTimeSelected(time)
+            },
+            calendar.get(Calendar.HOUR_OF_DAY),
+            calendar.get(Calendar.MINUTE),
+            true
+        ).show()
     }
 }

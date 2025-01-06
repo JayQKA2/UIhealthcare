@@ -84,53 +84,30 @@
     </androidx.cardview.widget.CardView>
 
 
-    <EditText
-        android:id="@+id/weight_input_edit_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        app:layout_constraintTop_toBottomOf="@+id/weekly_check_card"
-        android:hint="Enter weight (kg)"
-        android:textColor="@color/white"
-        android:inputType="numberDecimal"
-        android:backgroundTint="@android:color/white"
-        android:padding="10dp" />
 
-    <Button
-        app:layout_constraintTop_toBottomOf="@id/weight_input_edit_text"
-        android:id="@+id/save_weight_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:text="Save Weight"
-        android:backgroundTint="@android:color/white"
-        android:textColor="@android:color/black"
-        android:textStyle="bold" />
 
     <!-- Sleep input -->
-    <EditText
-        android:id="@+id/sleep_start_input"
+    <Button
+        android:id="@+id/sleep_start_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:hint="Enter sleep start (yyyy-MM-dd HH:mm)"
-        android:inputType="datetime"
-        android:padding="10dp"
+        android:text="Select Sleep Start Time"
         android:backgroundTint="@android:color/white"
-        android:textColor="@color/white"
-        app:layout_constraintTop_toBottomOf="@+id/save_weight_button"/>
+        android:textColor="@android:color/black"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@+id/weekly_check_card"/>
 
-    <EditText
-        android:id="@+id/sleep_end_input"
+    <Button
+        android:id="@+id/sleep_end_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:hint="Enter sleep end (yyyy-MM-dd HH:mm)"
-        android:inputType="datetime"
-        android:padding="10dp"
+        android:text="Select Sleep End Time"
         android:backgroundTint="@android:color/white"
-        android:textColor="@color/white"
-        app:layout_constraintTop_toBottomOf="@+id/sleep_start_input"/>
+        android:textColor="@android:color/black"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@+id/sleep_start_button"/>
 
     <Button
         android:id="@+id/save_sleep_button"
@@ -141,8 +118,7 @@
         android:backgroundTint="@android:color/white"
         android:textColor="@android:color/black"
         android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@+id/sleep_end_input"/>
-
+        app:layout_constraintTop_toBottomOf="@+id/sleep_end_button"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
