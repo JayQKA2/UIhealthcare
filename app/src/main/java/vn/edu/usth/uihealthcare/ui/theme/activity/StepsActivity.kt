@@ -64,6 +64,20 @@ class StepsActivity : AppCompatActivity() {
 
         checkPermission()
         startStepSensorService()
+// Hiển thị dữ liệu bước chân khi khởi động ứng dụng
+        updateUI(getStepData())
+    }
+
+    private fun saveStepData(steps: Int) {
+        val sharedPreferences = getSharedPreferences("step_data", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putInt("steps", steps)
+        editor.apply()
+    }
+
+    private fun getStepData(): Int {
+        val sharedPreferences = getSharedPreferences("step_data", Context.MODE_PRIVATE)
+        return sharedPreferences.getInt("steps", 0)
     }
 
     private fun checkPermission() {
