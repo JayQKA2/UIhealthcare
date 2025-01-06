@@ -59,7 +59,6 @@
 
     <fragment
         android:id="@+id/navigation_sleep"
-        android:name="vn.edu.usth.uihealthcare.ui.theme.activity.SleepActivity"
         android:label="Sleep"
         tools:layout="@layout/activity_sleep">
         <action

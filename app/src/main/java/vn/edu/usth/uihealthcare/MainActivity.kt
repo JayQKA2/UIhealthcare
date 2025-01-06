@@ -79,7 +79,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val healthConnectManager by lazy {
-        HealthConnectManager(this) // Khởi tạo HealthConnectManager khi cần
+        HealthConnectManager(this)
     }
 
     private fun setupUI() {

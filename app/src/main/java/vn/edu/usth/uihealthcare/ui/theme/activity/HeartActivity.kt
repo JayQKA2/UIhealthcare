@@ -80,9 +80,9 @@ class HeartActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_heart)
+        heart_value = findViewById(R.id.heartnumber)
         toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
-        heart_value = findViewById(R.id.heartnumber)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         checkpermission()
 
@@ -148,7 +148,6 @@ class HeartActivity : AppCompatActivity() {
                 val startTime = endTime.minusSeconds(60 * 60 * 24)
 
                 val heartRateRecord = healthConnectManager.readHeartRateRecords(startTime, endTime)
-
                 if (heartRateRecord.isNotEmpty()) {
                     val latestHeartRate = heartRateRecord.first()
 

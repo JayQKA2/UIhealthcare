@@ -1,5 +1,6 @@
 package vn.edu.usth.uihealthcare.ui.theme
 
+import vn.edu.usth.uihealthcare.ui.theme.activity.SleepActivity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -13,7 +14,6 @@ import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import vn.edu.usth.uihealthcare.R
 import vn.edu.usth.uihealthcare.ui.theme.activity.HeartActivity
-import vn.edu.usth.uihealthcare.ui.theme.activity.SleepActivity
 import vn.edu.usth.uihealthcare.ui.theme.activity.StepsActivity
 
 class HomeFragment : Fragment() {
@@ -40,19 +40,19 @@ class HomeFragment : Fragment() {
             Log.d(TAG, "Notifications")
         }
 
-        view.findViewById<View>(R.id.steps).setOnClickListener { v: View ->
+        view.findViewById<View>(R.id.steps).setOnClickListener {
             val intent = Intent(context, StepsActivity::class.java)
             startActivity(intent)
         }
 
         view.findViewById<View>(R.id.heart_pressure).setOnClickListener {
-            val intent = Intent(context, HeartActivity::class.java)
-            startActivity(intent)
+            val intent2 = Intent(context, HeartActivity::class.java)
+            startActivity(intent2)
         }
 
-        view.findViewById<View>(R.id.sleepCard).setOnClickListener { v: View ->
-            val intent = Intent(context, SleepActivity::class.java)
-            startActivity(intent)
+        view.findViewById<View>(R.id.sleepCard).setOnClickListener {
+            val intent3 = Intent(context, SleepActivity::class.java)
+            startActivity(intent3)
         }
 
         return view
