@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity() {
         R.id.stepsActivity,
         R.id.navigation_heart,
         R.id.navigation_measurement,
-        R.id.navigation_sleep2,
+
     )
 
     @SuppressLint("MissingPermission", "BatteryLife")
