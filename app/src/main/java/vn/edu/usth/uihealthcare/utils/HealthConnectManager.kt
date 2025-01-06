@@ -279,7 +279,6 @@ class HealthConnectManager(private val context: Context) {
     }
 
     suspend fun readSleepSession(
-        healthConnectClient: HealthConnectClient,
         start: Instant,
         end: Instant
     ): List<SleepSessionRecord> {

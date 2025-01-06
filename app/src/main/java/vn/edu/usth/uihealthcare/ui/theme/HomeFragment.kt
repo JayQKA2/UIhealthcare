@@ -13,6 +13,7 @@ import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import vn.edu.usth.uihealthcare.R
 import vn.edu.usth.uihealthcare.ui.theme.activity.HeartActivity
+import vn.edu.usth.uihealthcare.ui.theme.activity.SleepActivity
 import vn.edu.usth.uihealthcare.ui.theme.activity.StepsActivity
 
 class HomeFragment : Fragment() {
@@ -50,8 +51,8 @@ class HomeFragment : Fragment() {
         }
 
         view.findViewById<View>(R.id.sleepCard).setOnClickListener { v: View ->
-            val navController: NavController = Navigation.findNavController(v)
-            navController.navigate(R.id.action_sleep)
+            val intent = Intent(context, SleepActivity::class.java)
+            startActivity(intent)
         }
 
         return view

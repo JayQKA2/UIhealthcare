@@ -42,14 +42,16 @@ class Sleep2Fragment : Fragment() {
                 val endTime = Instant.now()
                 val startTime = endTime.minusSeconds(60 * 60 * 24)
 
-                val weightRecords = healthConnectManager.readWeightInputs(startTime, endTime)
+                val sleepsRecords = healthConnectManager.readSleepSession(startTime, endTime)
 
-                if (weightRecords.isNotEmpty()) {
-                    val latestWeight = weightRecords.first()
+                if (sleepsRecords.isNotEmpty()) {
+                    val latestSleeps = sleepsRecords.first()
 
-                    val mass = latestWeight.weight.inKilograms
+                    val start = latestSleeps.startTime
+                    val end  = latestSleeps.endTime
+                    val total = "From $start hours to $end hours"
 
-                    weightTextView.text = "Weight: $mass kg"
+                    weightTextView.text = total
                 } else {
                     weightTextView.text = "No weight data found."
                 }

@@ -73,6 +73,7 @@
 
         <activity android:name=".ui.theme.activity.HeartActivity" />
         <activity android:name=".ui.theme.activity.StepsActivity" />
+        <activity android:name=".ui.theme.activity.SleepActivity" />
 
 
 
