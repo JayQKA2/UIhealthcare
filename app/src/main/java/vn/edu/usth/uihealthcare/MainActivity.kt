@@ -30,7 +30,6 @@ class MainActivity : AppCompatActivity() {
 
     private val hiddenBottomNavDestinations = setOf(
         R.id.navigation_heart,
-//        R.id.navigation_test,
         R.id.navigation_sleep,
         R.id.stepsActivity,
         R.id.navigation_heart,

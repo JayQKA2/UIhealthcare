@@ -11,6 +11,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.cardview.widget.CardView
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -37,7 +38,7 @@ class SleepActivity : AppCompatActivity() {
     private lateinit var healthConnectManager: HealthConnectManager
     private lateinit var sleepDataAdapter: SleepDataAdapter
     private lateinit var recyclerView: RecyclerView
-    private lateinit var icon1: ImageView
+    private lateinit var card: CardView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -95,17 +96,14 @@ class SleepActivity : AppCompatActivity() {
             }
         }
 
-        // Initialize RecyclerView
         recyclerView = findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        // Initialize SleepDataAdapter with an empty list
         sleepDataAdapter = SleepDataAdapter(emptyList())
         recyclerView.adapter = sleepDataAdapter
 
-        // Set OnClickListener for icon1
-        icon1 = findViewById(R.id.icon1)
-        icon1.setOnClickListener {
+        card = findViewById(R.id.his)
+        card.setOnClickListener {
             fetchSleepData()
         }
     }
@@ -131,14 +129,21 @@ class SleepActivity : AppCompatActivity() {
             try {
                 val endTime = Instant.now()
                 val startTime = endTime.minusSeconds(60 * 60 * 24)
+                val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd | HH:mm:ss")
 
                 val sleepSessionRecord = healthConnectManager.readSleepSession(startTime, endTime)
                 if (sleepSessionRecord.isNotEmpty()) {
                     val sleepDataList: List<SleepData> = sleepSessionRecord.map { session ->
+                        val formattedStartTime = session.startTime.atZone(ZoneId.systemDefault()).format(formatter)
+                        val formattedEndTime = session.endTime.atZone(ZoneId.systemDefault()).format(formatter)
+                        val durationInSeconds = session.endTime.epochSecond - session.startTime.epochSecond
+                        val durationInHours = durationInSeconds / 3600
+                        val durationInMinutes = (durationInSeconds % 3600) / 60
+                        val formattedDuration = "${durationInHours}h ${durationInMinutes}m"
                         SleepData(
-                            date = session.startTime.toString(),
-                            timeRange = "${session.startTime} to ${session.endTime}",
-                            duration = "${session.endTime.epochSecond - session.startTime.epochSecond} seconds"
+                            date = formattedStartTime,
+                            timeRange = "$formattedStartTime \n$formattedEndTime",
+                            duration = "$formattedDuration"
                         )
                     }
                     sleepDataAdapter.updateData(sleepDataList)
