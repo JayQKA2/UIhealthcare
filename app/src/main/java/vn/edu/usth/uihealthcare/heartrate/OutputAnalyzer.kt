@@ -38,7 +38,7 @@ class OutputAnalyzer(
     private var store: MeasureStore? = null
 
     private val measurementInterval = 45
-    private val measurementLength = 30000
+    private val measurementLength = 15000
     private val clipLength = 3500
 
     private var detectedValleys = 0

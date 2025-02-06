@@ -48,6 +48,12 @@
         <action
             android:id="@+id/action_measurement"
             app:destination="@id/navigation_measurement" />
+        <action
+            android:id="@+id/action_aboutAppFragment"
+            app:destination="@id/aboutAppFragment2" />
+        <action
+            android:id="@+id/action_helpFragment"
+            app:destination="@id/helpFragment" />
     </fragment>
 
     <fragment
@@ -93,5 +99,26 @@
         android:id="@+id/sleepActivity"
         android:name="vn.edu.usth.uihealthcare.ui.theme.activity.SleepActivity"
         android:label="SleepActivity" />
+    <fragment
+        android:id="@+id/aboutAppFragment2"
+        android:name="vn.edu.usth.uihealthcare.ui.theme.Settings.AboutAppFragment"
+        android:label="AboutAppFragment" >
+        <action
+            android:id="@+id/action_aboutAppFragment2_to_navigation_settings"
+            app:destination="@id/navigation_settings" />
+    </fragment>
+    <fragment
+        android:id="@+id/heartFragment"
+        android:name="vn.edu.usth.uihealthcare.ui.theme.HeartFragment"
+        android:label="HeartFragment" />
+    <fragment
+        android:id="@+id/helpFragment"
+        android:name="vn.edu.usth.uihealthcare.ui.theme.Settings.HelpFragment"
+        android:label="HelpFragment" >
+        <action
+            android:id="@+id/action_helpFragment_to_navigation_settings"
+            app:destination="@id/navigation_settings" />
+    </fragment>
+
 
 </navigation>
