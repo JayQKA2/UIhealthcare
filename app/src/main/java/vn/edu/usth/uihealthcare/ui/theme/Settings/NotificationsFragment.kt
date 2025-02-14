@@ -1,4 +1,4 @@
-package vn.edu.usth.uihealthcare.ui.theme
+package vn.edu.usth.uihealthcare.ui.theme.Settings
 
 import android.os.Bundle
 import android.view.LayoutInflater
