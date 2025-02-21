@@ -1,5 +1,7 @@
 package vn.edu.usth.uihealthcare.heartrate
 
+import android.content.Context
+import android.graphics.SurfaceTexture
 import android.os.CountDownTimer
 import android.os.Handler
 import android.os.Message
@@ -7,6 +9,7 @@ import android.view.TextureView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import vn.edu.usth.uihealthcare.Data.HeartData
 import vn.edu.usth.uihealthcare.sensor.CameraService
 import vn.edu.usth.uihealthcare.MainActivity
 import vn.edu.usth.uihealthcare.R
@@ -19,13 +22,23 @@ import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.math.ceil
 
-class OutputAnalyzer(private val activity: HeartActivity, graphTextureView: TextureView, private val mainHandler: Handler) {
+class OutputAnalyzer(
+    private val context: Context,
+    private val heartRateBar: TextureView,
+    private val handler: Handler? = null
+) {
+    private var onDataReceivedListener: ((HeartData) -> Unit)? = null
 
-    private val chartDrawer: ChartDrawer = ChartDrawer(graphTextureView)
+    // Thêm hàm để thiết lập listener
+    fun setOnDataReceivedListener(listener: (HeartData) -> Unit) {
+        onDataReceivedListener = listener
+    }
+
+    private val chartDrawer: ChartDrawer = ChartDrawer(heartRateBar)
     private var store: MeasureStore? = null
 
     private val measurementInterval = 45
-    private val measurementLength = 30000
+    private val measurementLength = 15000
     private val clipLength = 3500
 
     private var detectedValleys = 0
@@ -33,9 +46,7 @@ class OutputAnalyzer(private val activity: HeartActivity, graphTextureView: Text
 
     private val valleys = CopyOnWriteArrayList<Long>()
     private var timer: CountDownTimer? = null
-    private val healthConnectManager = HealthConnectManager(activity)
-
-
+    private val healthConnectManager = HealthConnectManager(context)
 
     private fun detectValley(): Boolean {
         val valleyDetectionWindowSize = 13
@@ -55,7 +66,6 @@ class OutputAnalyzer(private val activity: HeartActivity, graphTextureView: Text
     }
 
     fun measurePulse(textureView: TextureView, cameraService: CameraService) {
-
         store = MeasureStore()
         detectedValleys = 0
 
@@ -82,7 +92,7 @@ class OutputAnalyzer(private val activity: HeartActivity, graphTextureView: Text
                         valleys.add(store?.getLastTimestamp()?.time ?: 0)
                         val currentValue = String.format(
                             Locale.getDefault(),
-                            activity.resources.getQuantityString(R.plurals.measurement_output_template, detectedValleys),
+                            context.resources.getQuantityString(R.plurals.measurement_output_template, detectedValleys),
                             if (valleys.size == 1) {
                                 60f * detectedValleys / (1f.coerceAtLeast((measurementLength - millisUntilFinished - clipLength) / 1000f))
                             } else {
@@ -93,6 +103,13 @@ class OutputAnalyzer(private val activity: HeartActivity, graphTextureView: Text
                         )
 
                         sendMessage(HeartActivity.MESSAGE_UPDATE_REALTIME, currentValue)
+
+                        // Gửi dữ liệu về thông qua listener
+                        onDataReceivedListener?.invoke(HeartData(
+                            ZonedDateTime.now().toLocalDate().toString(),
+                            ZonedDateTime.now().toLocalTime().toString(),
+                            currentValue
+                        ))
                     }
 
                     Thread { chartDrawer.draw(store?.getStdValues() ?: CopyOnWriteArrayList()) }.start()
@@ -103,8 +120,8 @@ class OutputAnalyzer(private val activity: HeartActivity, graphTextureView: Text
                 store?.getStdValues() ?: return
 
                 if (valleys.isEmpty()) {
-                    mainHandler.sendMessage(
-                        Message.obtain(mainHandler, MainActivity.MESSAGE_CAMERA_NOT_AVAILABLE, "No valleys detected - there may be an issue when accessing the camera.")
+                    handler?.sendMessage(
+                        Message.obtain(handler, MainActivity.MESSAGE_CAMERA_NOT_AVAILABLE, "No valleys detected - there may be an issue when accessing the camera.")
                     )
                     return
                 }
@@ -133,7 +150,6 @@ class OutputAnalyzer(private val activity: HeartActivity, graphTextureView: Text
             }
         }
 
-        activity.setViewState(HeartActivity.ViewState.MEASUREMENT)
         timer?.start()
     }
 
@@ -141,10 +157,21 @@ class OutputAnalyzer(private val activity: HeartActivity, graphTextureView: Text
         timer?.cancel()
     }
 
+    fun getHeartRateData(): HeartData {
+        if (valleys.isEmpty()) {
+            return HeartData("N/A", "N/A", "N/A")
+        }
+        val averageHeartRate = 60f * (detectedValleys - 1) / (1f.coerceAtLeast((valleys.last() - valleys.first()) / 1000f))
+        val currentDate = ZonedDateTime.now().toLocalDate().toString()
+        val currentTime = ZonedDateTime.now().toLocalTime().toString()
+        val heartRateValue = String.format(Locale.getDefault(), "%.1f bpm", averageHeartRate)
+        return HeartData(currentDate, currentTime, heartRateValue)
+    }
+
     private fun sendMessage(what: Int, message: Any) {
         val msg = Message()
         msg.what = what
         msg.obj = message
-        mainHandler.sendMessage(msg)
+        handler?.sendMessage(msg)
     }
 }

@@ -75,13 +75,17 @@
 
         <activity android:name=".ui.theme.activity.HeartActivity" />
         <activity android:name=".ui.theme.activity.StepsActivity" />
+<<<<<<< HEAD
+        <activity android:name=".ui.theme.activity.SleepActivity"/>
+=======
         <activity android:name=".ui.theme.activity.SleepActivity"
             android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
         </activity>
+>>>>>>> 5a54548 (nahnh)
 
 
 

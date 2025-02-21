@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">I Love Children</string>
+    <string name="app_name">HeathCare</string>
     <string name="title_home">Home</string>
     <string name="title_my_profile">My Profile</string>
     <string name="title_notifications">Notifications</string>
@@ -25,7 +25,6 @@
         <item>km</item>
         <item>miles</item>
     </string-array>
-
     <string name="output_header_template">Heart rate on %s</string>
     <string name="separator">,</string>
     <string name="row_separator">\n</string>

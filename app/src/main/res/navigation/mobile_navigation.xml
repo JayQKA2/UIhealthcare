@@ -23,6 +23,15 @@
         <action
             android:id="@+id/action_test"
             app:destination="@+id/navigation_test"/>
+        <action
+            android:id="@+id/action_navigation_home_to_sleepActivity"
+            app:destination="@id/sleepActivity" />
+        <action
+            android:id="@+id/action_navigation_home_to_heartActivity2"
+            app:destination="@id/heartActivity2" />
+        <action
+            android:id="@+id/action_navigation_home_to_stepsActivity"
+            app:destination="@id/stepsActivity" />
     </fragment>
 
     <fragment
@@ -39,6 +48,12 @@
         <action
             android:id="@+id/action_measurement"
             app:destination="@id/navigation_measurement" />
+        <action
+            android:id="@+id/action_aboutAppFragment"
+            app:destination="@id/aboutAppFragment2" />
+        <action
+            android:id="@+id/action_helpFragment"
+            app:destination="@id/helpFragment" />
     </fragment>
 
     <fragment
@@ -61,9 +76,6 @@
         android:id="@+id/navigation_sleep"
         android:label="Sleep"
         tools:layout="@layout/activity_sleep">
-        <action
-            android:id="@+id/action_sleep2"
-            app:destination="@id/navigation_sleep2"/>
     </fragment>
 
     <fragment
@@ -71,10 +83,42 @@
         android:label="Step"
         tools:layout="@layout/activity_steps"/>
 
+    <activity
+        android:id="@+id/heartActivity2"
+        android:name="vn.edu.usth.uihealthcare.ui.theme.activity.HeartActivity"
+        android:label="HeartActivity" />
+    <activity
+        android:id="@+id/mainActivity"
+        android:name="vn.edu.usth.uihealthcare.MainActivity"
+        android:label="MainActivity" />
+    <activity
+        android:id="@+id/stepsActivity"
+        android:name="vn.edu.usth.uihealthcare.ui.theme.activity.StepsActivity"
+        android:label="StepsActivity" />
+    <activity
+        android:id="@+id/sleepActivity"
+        android:name="vn.edu.usth.uihealthcare.ui.theme.activity.SleepActivity"
+        android:label="SleepActivity" />
     <fragment
-        android:id="@+id/navigation_sleep2"
-        android:name="vn.edu.usth.uihealthcare.ui.theme.Sleep2Fragment"
-        android:label="weekly check"
-        tools:layout="@layout/fragment_sleep2"/>
+        android:id="@+id/aboutAppFragment2"
+        android:name="vn.edu.usth.uihealthcare.ui.theme.Settings.AboutAppFragment"
+        android:label="AboutAppFragment" >
+        <action
+            android:id="@+id/action_aboutAppFragment2_to_navigation_settings"
+            app:destination="@id/navigation_settings" />
+    </fragment>
+    <fragment
+        android:id="@+id/heartFragment"
+        android:name="vn.edu.usth.uihealthcare.ui.theme.HeartFragment"
+        android:label="HeartFragment" />
+    <fragment
+        android:id="@+id/helpFragment"
+        android:name="vn.edu.usth.uihealthcare.ui.theme.Settings.HelpFragment"
+        android:label="HelpFragment" >
+        <action
+            android:id="@+id/action_helpFragment_to_navigation_settings"
+            app:destination="@id/navigation_settings" />
+    </fragment>
+
 
 </navigation>

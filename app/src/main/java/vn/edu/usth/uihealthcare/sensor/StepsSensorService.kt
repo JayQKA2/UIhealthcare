@@ -27,7 +27,7 @@ class StepsSensorService : Service(), SensorEventListener {
     private lateinit var sensorManager: SensorManager
     private var steps = 0
     private var previousMagnitude = 0.0
-    private val threshold = 12.0
+    private val threshold = 7.0
     private var stepCount = 0
     private var isHaveStepCounter = true
     private var lastStepTime: Long = 0

@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    kotlin("kapt")
 }
 
 android {
@@ -47,6 +48,9 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    kapt {
+        correctErrorTypes = true
+    }
 }
 
 dependencies {
@@ -87,10 +91,22 @@ dependencies {
 
     implementation ("com.google.android.gms:play-services-wearable:19.0.0")
 
+    implementation ("nl.joery.timerangepicker:timerangepicker:1.0.0")
+
     implementation ("androidx.health.connect:connect-client:1.1.0-alpha10")
 
     implementation ("androidx.work:work-runtime:2.10.0")
 
+    implementation("androidx.room:room-runtime:2.5.0")
+//    kapt("androidx.room:room-compiler:2.5.0")
+//    implementation("androidx.room:room-ktx:2.5.0")
+//    annotationProcessor ("androidx.room:room-compiler:2.5.0")
+
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.21")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+
     implementation("com.google.android.gms:play-services-fitness:21.2.0")
+
 
 }

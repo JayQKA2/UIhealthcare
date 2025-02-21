@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".AboutAppFragment">
+
+    <TextView
+        android:id="@+id/about_app_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="The HealthCare App helps users monitor their health by tracking key metrics like heart rate, step count, and sleep patterns. It offers three main features:\n\nReal-Time Health Monitoring: Users can track heart rate, steps, and sleep patterns in real-time, providing instant insights into their daily activities and health status.\n\nPersonalized Health Insights: The app analyzes collected data to deliver detailed trends and insights, helping users understand their progress and make informed health decisions.\n\nGoal Setting and Notifications: Users can set personalized health goals and receive notifications to stay motivated and maintain an active lifestyle.\n\nDesigned to promote better health management, this app is perfect for anyone looking to achieve a balanced and healthy routine."
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:textColor="@color/black"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

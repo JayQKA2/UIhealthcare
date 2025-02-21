@@ -2,7 +2,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:background="@color/background_white">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -20,8 +21,7 @@
         android:layout_marginTop="12dp"
         android:layout_marginEnd="10dp"
         android:background="@drawable/huhu"
-        android:backgroundTint="#85BBE2"
-        android:padding="16dp"
+        android:backgroundTint="@color/background_khung"
         app:layout_constraintTop_toBottomOf="@id/toolbar">
 
         <ImageView
@@ -71,7 +71,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             app:layout_constraintTop_toBottomOf="@id/camera"
-            tools:text="120 bmp"
+            tools:text="120 bpm"
             android:textColor="@color/black"
             android:textSize="25sp"
             android:textStyle="bold"
@@ -80,19 +80,23 @@
 
         <Button
             android:id="@+id/floatingActionButton"
-            android:layout_width="56dp"
-            app:layout_constraintTop_toBottomOf="@id/pulse_value"
-            android:layout_height="wrap_content"
+            android:layout_width="94dp"
+            android:layout_height="45dp"
+            android:layout_marginTop="15dp"
             android:clickable="true"
             android:focusable="true"
             android:onClick="onClickNewMeasurement"
+            android:text="Scan"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:background="@color/background_black"
             android:visibility="visible"
-            android:layout_marginTop="15dp"
-            android:text="ĐO"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            tools:visibility="visible"/>
+            app:layout_constraintTop_toBottomOf="@id/pulse_value"
+            tools:visibility="visible" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -100,11 +104,10 @@
         android:id="@+id/his"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginEnd="10dp"
+        android:layout_margin="10dp"
+
+        android:backgroundTint="@color/background_green"
         app:cardCornerRadius="20dp"
-        android:backgroundTint="#E1F5D8"
         app:layout_constraintTop_toBottomOf="@id/khung">
 
         <ImageView
@@ -129,6 +132,7 @@
             app:layout_constraintLeft_toRightOf="@id/icon1" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/heart_history"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -138,39 +142,15 @@
             android:background="@drawable/huhu"
             android:backgroundTint="#F7F7F7">
 
-            <TextView
-                android:id="@+id/date"
-                android:layout_width="wrap_content"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:text="19/11/2024"
+                android:layout_marginTop="12dp"
+                android:layout_weight="1"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/time"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="112dp"
-                android:text="20:00:02"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toRightOf="@id/date"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/heartnumber"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:text="100bmp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
+                app:layout_constraintTop_toTopOf="parent"
+                tools:layout_editor_absoluteX="10dp" />
         </androidx.constraintlayout.widget.ConstraintLayout>
-
-
     </androidx.cardview.widget.CardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

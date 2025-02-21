@@ -6,15 +6,21 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.cardview.widget.CardView
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import nl.joery.timerangepicker.TimeRangePicker
+import vn.edu.usth.uihealthcare.Data.SleepData
+import vn.edu.usth.uihealthcare.Data.SleepDataAdapter
 import vn.edu.usth.uihealthcare.R
 import vn.edu.usth.uihealthcare.utils.HealthConnectManager
 import java.time.Instant
@@ -25,15 +31,14 @@ import java.util.*
 
 class SleepActivity : AppCompatActivity() {
 
-    private lateinit var sleepTextView: TextView
-    private var timeTextView: TextView? = null
-    private lateinit var durationTextView: TextView
     private lateinit var toolbar: Toolbar
     private val handler = Handler(Looper.getMainLooper())
     private lateinit var startTimeTextView: TextView
     private lateinit var endTimeTextView: TextView
     private lateinit var healthConnectManager: HealthConnectManager
-
+    private lateinit var sleepDataAdapter: SleepDataAdapter
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var card: CardView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,10 +47,6 @@ class SleepActivity : AppCompatActivity() {
         val picker: TimeRangePicker = findViewById(R.id.picker)
         startTimeTextView = findViewById(R.id.start_time)
         endTimeTextView = findViewById(R.id.end_time)
-
-        sleepTextView = findViewById(R.id.data)
-        timeTextView = findViewById(R.id.date)
-        durationTextView = findViewById(R.id.duration)
 
         val saveSleepButton: Button = findViewById(R.id.save_sleep_button)
         toolbar = findViewById(R.id.toolbar3)
@@ -57,7 +58,6 @@ class SleepActivity : AppCompatActivity() {
         }
 
         healthConnectManager = HealthConnectManager(this)
-
 
         picker.setOnTimeChangeListener(object : TimeRangePicker.OnTimeChangeListener {
             override fun onStartTimeChange(startTime: TimeRangePicker.Time) {
@@ -91,9 +91,20 @@ class SleepActivity : AppCompatActivity() {
                 try {
                     healthConnectManager.writeSleepSession(healthConnectManager.healthConnectClient, startZonedDateTime, endZonedDateTime)
                 } catch (e: Exception) {
-                    Log.e("vn.edu.usth.uihealthcare.ui.theme.activity.SleepActivity", "Error saving sleep data", e)
+                    Log.e("SleepActivity", "Error saving sleep data", e)
                 }
             }
+        }
+
+        recyclerView = findViewById(R.id.recyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+
+        sleepDataAdapter = SleepDataAdapter(emptyList())
+        recyclerView.adapter = sleepDataAdapter
+
+        card = findViewById(R.id.his)
+        card.setOnClickListener {
+            fetchSleepData()
         }
     }
 
@@ -113,29 +124,35 @@ class SleepActivity : AppCompatActivity() {
         return ZonedDateTime.of(localTime.atDate(java.time.LocalDate.now()), ZoneId.systemDefault())
     }
 
-    @SuppressLint("SetTextI18n")
-    private fun fetchSleep() {
+    private fun fetchSleepData() {
         lifecycleScope.launch {
             try {
                 val endTime = Instant.now()
                 val startTime = endTime.minusSeconds(60 * 60 * 24)
+                val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd | HH:mm:ss")
 
                 val sleepSessionRecord = healthConnectManager.readSleepSession(startTime, endTime)
                 if (sleepSessionRecord.isNotEmpty()) {
-                    val latestsleeping = sleepSessionRecord.first()
-
-                    val start = latestsleeping.startTime
-                    val end = latestsleeping.endTime
-
-                    timeTextView!!.text = "From: $start to $end"
-
+                    val sleepDataList: List<SleepData> = sleepSessionRecord.map { session ->
+                        val formattedStartTime = session.startTime.atZone(ZoneId.systemDefault()).format(formatter)
+                        val formattedEndTime = session.endTime.atZone(ZoneId.systemDefault()).format(formatter)
+                        val durationInSeconds = session.endTime.epochSecond - session.startTime.epochSecond
+                        val durationInHours = durationInSeconds / 3600
+                        val durationInMinutes = (durationInSeconds % 3600) / 60
+                        val formattedDuration = "${durationInHours}h ${durationInMinutes}m"
+                        SleepData(
+                            date = formattedStartTime,
+                            timeRange = "$formattedStartTime \n$formattedEndTime",
+                            duration = "$formattedDuration"
+                        )
+                    }
+                    sleepDataAdapter.updateData(sleepDataList)
                 } else {
-                    timeTextView!!.text = "No sleep data found."
+                    Toast.makeText(this@SleepActivity, "No sleep data found.", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
-                timeTextView!!.text = "Failed to fetch sleep data: ${e.message}"
+                Toast.makeText(this@SleepActivity, "Failed to fetch sleep data: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }
-
 }

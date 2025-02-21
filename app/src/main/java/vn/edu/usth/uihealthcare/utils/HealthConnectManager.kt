@@ -273,14 +273,31 @@ class HealthConnectManager(private val context: Context) {
         start: ZonedDateTime,
         end: ZonedDateTime
     ) {
-        val sleepSessionRecord = SleepSessionRecord(
-            startTime = start.toInstant(),
-            startZoneOffset = start.offset,
-            endTime = end.toInstant(),
-            endZoneOffset = end.offset
-        )
-        healthConnectClient.insertRecords(listOf(sleepSessionRecord))
+        if (start.toInstant().isBefore(end.toInstant())) {
+            val sleepSessionRecord = SleepSessionRecord(
+                startTime = start.toInstant(),
+                startZoneOffset = start.offset,
+                endTime = end.toInstant(),
+                endZoneOffset = end.offset
+            )
+            healthConnectClient.insertRecords(listOf(sleepSessionRecord))
+        } else {
+            throw IllegalArgumentException("startTime must be before endTime.")
+        }
     }
+//    suspend fun writeSleepSession(
+//        healthConnectClient: HealthConnectClient,
+//        start: ZonedDateTime,
+//        end: ZonedDateTime
+//    ) {
+//        val sleepSessionRecord = SleepSessionRecord(
+//            startTime = start.toInstant(),
+//            startZoneOffset = start.offset,
+//            endTime = end.toInstant(),
+//            endZoneOffset = end.offset
+//        )
+//        healthConnectClient.insertRecords(listOf(sleepSessionRecord))
+//    }
 
     suspend fun readSleepSession(
         start: Instant,

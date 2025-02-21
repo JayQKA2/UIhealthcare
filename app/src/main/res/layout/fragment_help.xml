@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".HelpFragment">
+
+    <TextView
+        android:id="@+id/help_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="How to Use the HealthCare App\n\nWelcome to the HealthCare App! Here’s how you can easily take charge of your health:\n\n1. Get Started:\nDownload the app from the Play Store and sign up or log in to your account. It only takes a minute!\n\n2. Allow Access:\nLet the app access your phone's sensors to start tracking your steps, heart rate, and sleep patterns. Don’t worry, your data is safe with us!\n\n3. Track Your Health:\nOpen the app anytime to see your real-time stats like how many steps you’ve taken today, your heart rate, or how well you slept last night.\n\n4. Set Your Goals:\nWant to walk 10,000 steps a day or sleep 8 hours every night? Set your goals in the app and let us cheer you on!\n\n5. Stay Motivated:\nEnable notifications to get gentle reminders to move, rest, or meet your goals. We’re here to keep you on track.\n\n6. See Your Progress:\nCheck the “Trends” section to view your health history, track your improvements, and celebrate your milestones.\n\nThe HealthCare App is your daily companion for a healthier, happier life. Take small steps, and we’ll help you achieve big results!"
+        android:textSize="16sp"
+        android:gravity="start"
+        android:textColor="@color/black"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

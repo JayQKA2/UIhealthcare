@@ -18,6 +18,7 @@ import androidx.appcompat.widget.SwitchCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import vn.edu.usth.uihealthcare.R
 
 class SettingsFragment : Fragment() {
@@ -53,7 +54,14 @@ class SettingsFragment : Fragment() {
         permissionsTextView = view.findViewById(R.id.cv3t1)
         aboutAppsTextView = view.findViewById(R.id.cv3t3)
         helpTextView = view.findViewById(R.id.cv3t5)
-        signOutTextView = view.findViewById(R.id.cv4t1)
+//        signOutTextView = view.findViewById(R.id.cv4t1)
+
+
+        val aboutAppTextView: TextView = view.findViewById(R.id.cv3t3)
+        aboutAppTextView.setOnClickListener {
+            findNavController().navigate(R.id.action_aboutAppFragment)
+        }
+
 
         accountTextView.setOnClickListener { showToast("Account Clicked") }
         syncTextView.setOnClickListener { showToast("Sync with Cloud Clicked") }
@@ -69,9 +77,18 @@ class SettingsFragment : Fragment() {
             permissionsTextView.setOnClickListener { openPermissionSettings() }
         }
 
-        aboutAppsTextView.setOnClickListener { showToast("About Apps Clicked") }
-        helpTextView.setOnClickListener { showToast("Help Clicked") }
-        signOutTextView.setOnClickListener { showToast("Sign Out Clicked") }
+        aboutAppsTextView.setOnClickListener {
+            showToast("About Apps Clicked")
+            findNavController().navigate(R.id.action_aboutAppFragment)
+
+
+        }
+        helpTextView.setOnClickListener {
+            showToast("Help Clicked")
+            findNavController().navigate(R.id.action_helpFragment)
+
+        }
+//        signOutTextView.setOnClickListener { showToast("Sign Out Clicked") }
 
         syncSwitch.setOnCheckedChangeListener { _, isChecked ->
             val message = if (isChecked) "Sync Enabled" else "Sync Disabled"
@@ -119,4 +136,5 @@ class SettingsFragment : Fragment() {
             Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main)
         navController.navigate(R.id.action_measurement)
     }
+
 }

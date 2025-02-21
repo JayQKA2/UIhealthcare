@@ -30,12 +30,11 @@ class MainActivity : AppCompatActivity() {
 
     private val hiddenBottomNavDestinations = setOf(
         R.id.navigation_heart,
-        R.id.navigation_test,
         R.id.navigation_sleep,
-        R.id.navigation_step,
+        R.id.stepsActivity,
         R.id.navigation_heart,
         R.id.navigation_measurement,
-        R.id.navigation_sleep2,
+
     )
 
     @SuppressLint("MissingPermission", "BatteryLife")
@@ -79,7 +78,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val healthConnectManager by lazy {
-        HealthConnectManager(this)
+        HealthConnectManager(this) // Khởi tạo HealthConnectManager khi cần
     }
 
     private fun setupUI() {
