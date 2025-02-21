@@ -1,4 +1,4 @@
-package vn.edu.usth.uihealthcare.Data
+package vn.edu.usth.uihealthcare.data
 
 data class SleepData(
     val date: String,

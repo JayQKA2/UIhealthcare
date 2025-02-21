@@ -6,7 +6,6 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.widget.Button
-import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -19,15 +18,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import nl.joery.timerangepicker.TimeRangePicker
-import vn.edu.usth.uihealthcare.Data.SleepData
-import vn.edu.usth.uihealthcare.Data.SleepDataAdapter
+import vn.edu.usth.uihealthcare.data.SleepData
+import vn.edu.usth.uihealthcare.data.SleepDataAdapter
 import vn.edu.usth.uihealthcare.R
 import vn.edu.usth.uihealthcare.utils.HealthConnectManager
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.util.*
 
 class SleepActivity : AppCompatActivity() {
 

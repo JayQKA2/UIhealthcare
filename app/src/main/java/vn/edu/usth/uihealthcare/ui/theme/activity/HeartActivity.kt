@@ -23,15 +23,14 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
-import vn.edu.usth.uihealthcare.Data.HeartRateAdapter
+import vn.edu.usth.uihealthcare.data.HeartRateAdapter
 import vn.edu.usth.uihealthcare.R
 import vn.edu.usth.uihealthcare.sensor.CameraService
 import vn.edu.usth.uihealthcare.utils.HealthConnectManager
 import java.time.Instant
 import java.time.ZonedDateTime
 import java.time.ZoneId
-import androidx.core.app.ActivityCompat
-import vn.edu.usth.uihealthcare.Data.HeartData
+import vn.edu.usth.uihealthcare.data.HeartData
 
 class HeartActivity : AppCompatActivity() {
     private var analyzer: OutputAnalyzer? = null

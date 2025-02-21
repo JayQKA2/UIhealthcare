@@ -1,4 +1,4 @@
-package vn.edu.usth.uihealthcare.Data
+package vn.edu.usth.uihealthcare.data
 
 import android.view.LayoutInflater
 import android.view.View

@@ -29,12 +29,6 @@ class HomeFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_home, container, false)
 
         notificationIcon = view.findViewById(R.id.notificationIcon)
-        diagnosticButton = view.findViewById(R.id.diagnosticButton)
-
-//        diagnosticButton.setOnClickListener { v: View ->
-//            val navController: NavController = Navigation.findNavController(v)
-//            navController.navigate(R.id.action_test)
-//        }
 
         notificationIcon.setOnClickListener {
             Log.d(TAG, "Notifications")

@@ -199,7 +199,7 @@ class HealthConnectManager(private val context: Context) {
                 Log.e("StepRecordError", "Error inserting steps record: ${e.message}")
             }
         } else {
-            Log.d("StepUpdate", "No change in steps count. Skipping update.")
+//            Log.d("StepUpdate", "No change in steps count. Skipping update.")
         }
     }
 

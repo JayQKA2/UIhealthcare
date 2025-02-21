@@ -1,7 +1,6 @@
 package vn.edu.usth.uihealthcare.heartrate
 
 import android.content.Context
-import android.graphics.SurfaceTexture
 import android.os.CountDownTimer
 import android.os.Handler
 import android.os.Message
@@ -9,7 +8,7 @@ import android.view.TextureView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import vn.edu.usth.uihealthcare.Data.HeartData
+import vn.edu.usth.uihealthcare.data.HeartData
 import vn.edu.usth.uihealthcare.sensor.CameraService
 import vn.edu.usth.uihealthcare.MainActivity
 import vn.edu.usth.uihealthcare.R
