@@ -88,7 +88,7 @@
                     android:textAlignment="center"
                     android:textColor="?android:textColorPrimary"
                     android:textSize="20sp"
-                    tools:text="8:30" />
+                    android:text="0:00" />
             </LinearLayout>
         </LinearLayout>
 
@@ -129,7 +129,7 @@
                     android:textAlignment="center"
                     android:textColor="?android:textColorPrimary"
                     android:textSize="20sp"
-                    tools:text="8:30" />
+                    android:text="8:30" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
