@@ -7,9 +7,6 @@
         android:required="true" />
 
 
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
-
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" android:required="true"/>
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
 
@@ -18,11 +15,9 @@
 
     <uses-permission android:name="com.google.android.gms.permission.HEALTH_CONNECT" />
 
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
     <uses-permission android:name="android.permission.BODY_SENSORS"/>
     <uses-permission android:name="android.permission.NEARBY_DEVICES" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <uses-permission android:name="android.permission.health.READ_STEPS"/>
     <uses-permission android:name="android.permission.health.WRITE_STEPS" />
@@ -41,6 +36,23 @@
     <uses-permission android:name="android.permission.health.READ_EXERCISE_ROUTES"/>
     <uses-permission android:name="android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND" />
 
+    <!--  Request the general foreground service permission  -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!--  Request the specific foreground service permission for each declared type  -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+
+    <!--  Request notification permission to be able to show the foreground service notification  -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!--  Request location permission to be able to use the location foreground service type  -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
+
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_HEALTH"/>
+
     <application
         android:enableOnBackInvokedCallback="true"
         android:allowBackup="true"
@@ -57,7 +69,7 @@
             android:name=".sensor.StepsSensorService"
             android:enabled="true"
             android:exported="false"
-            android:foregroundServiceType="dataSync">
+            android:foregroundServiceType="health">
         </service>
 
         <activity
@@ -75,17 +87,7 @@
 
         <activity android:name=".ui.theme.activity.HeartActivity" />
         <activity android:name=".ui.theme.activity.StepsActivity" />
-<<<<<<< HEAD
         <activity android:name=".ui.theme.activity.SleepActivity"/>
-=======
-        <activity android:name=".ui.theme.activity.SleepActivity"
-            android:exported="true">
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
-        </activity>
->>>>>>> 5a54548 (nahnh)
 
 
 
@@ -99,6 +101,13 @@
                 <category android:name="android.intent.category.HEALTH_PERMISSIONS" />
             </intent-filter>
         </activity-alias>
+
+        <receiver android:name=".noti.NotificationsHelper"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="vn.edu.usth.myapplication.STEP_UPDATE" />
+            </intent-filter>
+        </receiver>
 
     </application>
 

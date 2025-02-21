@@ -1,47 +1,41 @@
 package vn.edu.usth.uihealthcare
 
+import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Intent
-import android.os.Bundle
+import android.content.*
+import android.os.*
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.lifecycle.ViewModelProvider
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.launch
-import vn.edu.usth.uihealthcare.sensor.CameraService
 import vn.edu.usth.uihealthcare.sensor.StepsSensorService
 import vn.edu.usth.uihealthcare.utils.HealthConnectManager
-
 
 class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
     private lateinit var bottomNavigationBar: BottomNavigationView
     private lateinit var toolbar: Toolbar
-    private lateinit var cameraService: CameraService
-    private lateinit var mainViewModel: MainViewModel
     private lateinit var permissionLauncher: ActivityResultLauncher<Set<String>>
 
     private val hiddenBottomNavDestinations = setOf(
-        R.id.navigation_heart,
-        R.id.navigation_sleep,
-        R.id.stepsActivity,
-        R.id.navigation_heart,
-        R.id.navigation_measurement,
-
+        R.id.navigation_heart, R.id.navigation_sleep, R.id.stepsActivity,
+        R.id.navigation_measurement, R.id.aboutAppFragment2, R.id.helpFragment
     )
 
     @SuppressLint("MissingPermission", "BatteryLife")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        mainViewModel = ViewModelProvider(this)[MainViewModel::class.java]
 
         permissionLauncher = registerForActivityResult(
             healthConnectManager.requestPermissionsActivityContract()
@@ -53,21 +47,28 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        checkAndRequestHealthConnectPermissions()
+        checkAndRequestPermissions()
         setupUI()
         setupNavigation()
-
-        val serviceIntent = Intent(this, StepsSensorService::class.java)
-        startService(serviceIntent)
+        startStepSensorService()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        stopService(Intent(this, StepsSensorService::class.java))
-        cameraService.stop()
     }
 
-    private fun checkAndRequestHealthConnectPermissions() {
+    private fun checkAndRequestPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val notificationPermissionLauncher = registerForActivityResult(
+                ActivityResultContracts.RequestPermission()
+            ) { granted ->
+                if (!granted) {
+                    Toast.makeText(this, "Notification permission is required!", Toast.LENGTH_SHORT).show()
+                }
+            }
+            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+
         val requiredPermissions = healthConnectManager.permission
         lifecycleScope.launch {
             val hasPermissions = healthConnectManager.hasAllPermissions(requiredPermissions)
@@ -77,9 +78,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private val healthConnectManager by lazy {
-        HealthConnectManager(this) // Khởi tạo HealthConnectManager khi cần
-    }
+    private val healthConnectManager by lazy { HealthConnectManager(this) }
 
     private fun setupUI() {
         toolbar = findViewById(R.id.toolbar)
@@ -105,6 +104,11 @@ class MainActivity : AppCompatActivity() {
                 toolbar.visibility = View.GONE
             }
         }
+    }
+
+    private fun startStepSensorService() {
+        val serviceIntent = Intent(this, StepsSensorService::class.java)
+        ContextCompat.startForegroundService(this, serviceIntent)
     }
 
     override fun onSupportNavigateUp(): Boolean {

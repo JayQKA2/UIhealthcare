@@ -96,20 +96,9 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/healthText"
                 android:layout_marginTop="4dp"
-                android:text="Last diagnosis of heart\n3 days ago"
+                android:text="Last diagnosis of heart"
                 android:textColor="#777"
                 android:textSize="14sp" />
-
-            <Button
-                android:id="@+id/diagnosticButton"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_alignParentBottom="true"
-                android:background="@drawable/rounded"
-                android:text="Diagnostic"
-                android:textColor="#000000"
-                android:textSize="14sp"
-                android:textStyle="bold" />
 
             <ImageView
                 android:id="@+id/heartImage"
@@ -163,12 +152,6 @@
                     android:text="Sleep"
                     android:textSize="18sp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/wwewe"
-                    android:text="6.5 hours"
-                    android:textSize="34sp"/>
 
             </RelativeLayout>
         </androidx.cardview.widget.CardView>
@@ -207,24 +190,6 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@id/wwewe1">
 
-                    <TextView
-                        android:id="@+id/valueText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="123"
-                        android:textSize="34sp"
-                        app:layout_constraintTop_toTopOf="parent"
-                        tools:ignore="MissingConstraints" />
-
-                    <TextView
-                        android:id="@+id/denominatorText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:text="/ 80"
-                        android:textSize="17sp"
-                        app:layout_constraintStart_toEndOf="@id/valueText"
-                        app:layout_constraintTop_toTopOf="@id/valueText" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </RelativeLayout>
         </androidx.cardview.widget.CardView>
@@ -266,13 +231,6 @@
                 android:text="Steps"
                 android:textColor="#777"
                 android:textSize="18sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:text="20000 steps"
-                android:textSize="34sp"/>
 
         </RelativeLayout>
     </androidx.cardview.widget.CardView>
