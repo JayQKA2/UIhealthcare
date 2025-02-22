@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import vn.edu.usth.uihealthcare.noti.NotificationsHelper
 import vn.edu.usth.uihealthcare.utils.HealthConnectManager
+import java.time.LocalDate
 import java.time.ZonedDateTime
 import kotlin.math.sqrt
 
@@ -39,6 +40,8 @@ class StepsSensorService : Service(), SensorEventListener {
 
     private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
+    private var lastRecordedDate: LocalDate = LocalDate.now() // Ngày lần cuối cập nhật bước
+
     companion object {
         private const val TAG = "StepsSensorService"
         private const val NOTIFICATION_ID = 1
@@ -54,6 +57,8 @@ class StepsSensorService : Service(), SensorEventListener {
         Log.d(TAG, "Service onCreate() called.")
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         healthConnectManager = HealthConnectManager(applicationContext)
+
+        lastRecordedDate = LocalDate.now() // Lưu ngày hiện tại khi service khởi chạy
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -86,6 +91,7 @@ class StepsSensorService : Service(), SensorEventListener {
     override fun onBind(intent: Intent?): IBinder = binder
 
     override fun onSensorChanged(event: SensorEvent) {
+        checkForNewDay() // Kiểm tra xem ngày có thay đổi không trước khi xử lý bước
         when (event.sensor.type) {
             Sensor.TYPE_STEP_COUNTER -> handleStepCounter(event)
             Sensor.TYPE_ACCELEROMETER -> handleAccelerometer(event)
@@ -116,6 +122,16 @@ class StepsSensorService : Service(), SensorEventListener {
                 sendStepCountToFragment(stepCount)
             }
         }
+
+        val startTime = ZonedDateTime.now()
+        val endTime = startTime.plusMinutes(1)
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                healthConnectManager.writeStepsInput(startTime, endTime, stepCount.toLong())
+            } catch (e: Exception) {
+                Log.e(TAG, "Error writing steps data: ${e.message}")
+            }
+        }
     }
 
     private fun sendStepCountToFragment(stepCount: Int) {
@@ -135,6 +151,17 @@ class StepsSensorService : Service(), SensorEventListener {
             ServiceCompat.startForeground(this, NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_HEALTH)
         } else {
             startForeground(NOTIFICATION_ID, notification)
+        }
+    }
+
+    private fun checkForNewDay() {
+        val currentDate = LocalDate.now()
+        if (currentDate.isAfter(lastRecordedDate)) {
+            Log.d(TAG, "New day detected! Resetting step count.")
+            lastRecordedDate = currentDate
+            stepCount = 0
+            _stepCountFlow.value = 0
+            sendStepCountToFragment(stepCount)
         }
     }
 }
