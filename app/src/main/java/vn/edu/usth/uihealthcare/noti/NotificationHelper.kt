@@ -41,7 +41,7 @@ class NotificationsHelper : BroadcastReceiver() {
             return NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
                 .setContentTitle("Step Counter Running")
                 .setContentText("Steps: $stepCount")
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setSmallIcon(R.drawable.ic_steps)
                 .setContentIntent(pendingIntent)
                 .setOngoing(true)
                 .build()
