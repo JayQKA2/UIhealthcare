@@ -37,6 +37,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        checkAndRequestPermissions()
+
         permissionLauncher = registerForActivityResult(
             healthConnectManager.requestPermissionsActivityContract()
         ) { grantedPermissions ->
@@ -47,11 +49,17 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        checkAndRequestPermissions()
+        val healthConnectClient = healthConnectManager.getHealthConnectClient(this)
+        if (healthConnectClient == null) {
+            Log.e("HealthConnect", "Health Connect is not available or needs an update.")
+            return
+        }
+
         setupUI()
         setupNavigation()
         startStepSensorService()
     }
+
 
     override fun onDestroy() {
         super.onDestroy()

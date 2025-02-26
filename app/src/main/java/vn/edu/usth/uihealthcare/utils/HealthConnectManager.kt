@@ -61,30 +61,26 @@ class HealthConnectManager(private val context: Context) {
         checkAvailability()
     }
 
-    fun checkForHealthConnectInstalled(context: Context): Int {
-        val availabilityStatus =
-            HealthConnectClient.getSdkStatus(context, "com.google.android.apps.healthdata")
-        when (availabilityStatus) {
-            HealthConnectClient.SDK_UNAVAILABLE -> {
-                val intent = Intent(Intent.ACTION_VIEW).apply {
-                    data =
-                        Uri.parse("https://play.google.com/store/apps/details?id=com.google.android.apps.healthdata")
-                }
-                context.startActivity(intent)
-            }
+    fun getHealthConnectClient(context: Context): HealthConnectClient? {
+        val status = HealthConnectClient.getSdkStatus(context, "com.google.android.apps.healthdata")
 
-            HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED -> {
+        if (status == HealthConnectClient.SDK_UNAVAILABLE) {
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                data = Uri.parse("https://play.google.com/store/apps/details?id=com.google.android.apps.healthdata")
             }
-
-            SDK_AVAILABLE -> {
-                val intent =
-                    context.packageManager.getLaunchIntentForPackage("com.google.android.apps.healthdata")
-                if (intent != null) {
-                    context.startActivity(intent)
-                }
-            }
+            context.startActivity(intent)
+            return null
         }
-        return availabilityStatus
+
+        if (status == HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED) {
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                data = Uri.parse("market://details?id=com.google.android.apps.healthdata")
+            }
+            context.startActivity(intent)
+            return null
+        }
+
+        return HealthConnectClient.getOrCreate(context)
     }
 
     private fun checkAvailability() {
@@ -285,19 +281,6 @@ class HealthConnectManager(private val context: Context) {
             throw IllegalArgumentException("startTime must be before endTime.")
         }
     }
-//    suspend fun writeSleepSession(
-//        healthConnectClient: HealthConnectClient,
-//        start: ZonedDateTime,
-//        end: ZonedDateTime
-//    ) {
-//        val sleepSessionRecord = SleepSessionRecord(
-//            startTime = start.toInstant(),
-//            startZoneOffset = start.offset,
-//            endTime = end.toInstant(),
-//            endZoneOffset = end.offset
-//        )
-//        healthConnectClient.insertRecords(listOf(sleepSessionRecord))
-//    }
 
     suspend fun readSleepSession(
         start: Instant,
@@ -312,6 +295,7 @@ class HealthConnectManager(private val context: Context) {
         val sleepRecords = response.records
         return sleepRecords
     }
+
 
 
     suspend fun getChangesToken(): String {

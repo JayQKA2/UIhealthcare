@@ -30,7 +30,7 @@ class StepsSensorService : Service(), SensorEventListener {
     private lateinit var sensorManager: SensorManager
     private var stepCount = 0
     private var previousMagnitude = 0.0
-    private val threshold = 3.5
+    private val threshold = 5.0
     private val stepInterval = 400
     private var lastStepTime: Long = 0
     private var isHaveStepCounter = true
@@ -40,7 +40,7 @@ class StepsSensorService : Service(), SensorEventListener {
 
     private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
-    private var lastRecordedDate: LocalDate = LocalDate.now() // Ngày lần cuối cập nhật bước
+    private var lastRecordedDate: LocalDate = LocalDate.now()
 
     companion object {
         private const val TAG = "StepsSensorService"
@@ -58,7 +58,7 @@ class StepsSensorService : Service(), SensorEventListener {
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         healthConnectManager = HealthConnectManager(applicationContext)
 
-        lastRecordedDate = LocalDate.now() // Lưu ngày hiện tại khi service khởi chạy
+        lastRecordedDate = LocalDate.now()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -91,14 +91,12 @@ class StepsSensorService : Service(), SensorEventListener {
     override fun onBind(intent: Intent?): IBinder = binder
 
     override fun onSensorChanged(event: SensorEvent) {
-        checkForNewDay() // Kiểm tra xem ngày có thay đổi không trước khi xử lý bước
+        checkForNewDay()
         when (event.sensor.type) {
             Sensor.TYPE_STEP_COUNTER -> handleStepCounter(event)
             Sensor.TYPE_ACCELEROMETER -> handleAccelerometer(event)
         }
     }
-
-    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
 
     private fun handleStepCounter(event: SensorEvent) {
         val steps = event.values[0].toInt()
@@ -164,4 +162,6 @@ class StepsSensorService : Service(), SensorEventListener {
             sendStepCountToFragment(stepCount)
         }
     }
+
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
 }

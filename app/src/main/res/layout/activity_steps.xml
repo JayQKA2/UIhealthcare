@@ -39,16 +39,6 @@
         android:textColor="#000"/>
 
 
-    <TextView
-        android:id="@+id/calor_value"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/steps_value"
-        app:layout_constraintLeft_toRightOf="@id/steps_title"
-        android:text="200 Calories"
-        android:textSize="20sp"
-        android:textColor="#000"/>
-
     <androidx.cardview.widget.CardView
         android:id="@+id/his"
         android:layout_width="match_parent"

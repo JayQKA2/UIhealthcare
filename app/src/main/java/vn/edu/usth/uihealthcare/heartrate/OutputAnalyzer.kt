@@ -28,7 +28,6 @@ class OutputAnalyzer(
 ) {
     private var onDataReceivedListener: ((HeartData) -> Unit)? = null
 
-    // Thêm hàm để thiết lập listener
     fun setOnDataReceivedListener(listener: (HeartData) -> Unit) {
         onDataReceivedListener = listener
     }
@@ -103,7 +102,6 @@ class OutputAnalyzer(
 
                         sendMessage(HeartActivity.MESSAGE_UPDATE_REALTIME, currentValue)
 
-                        // Gửi dữ liệu về thông qua listener
                         onDataReceivedListener?.invoke(HeartData(
                             ZonedDateTime.now().toLocalDate().toString(),
                             ZonedDateTime.now().toLocalTime().toString(),
