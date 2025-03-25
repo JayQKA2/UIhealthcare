@@ -80,7 +80,7 @@
 
         <Button
             android:id="@+id/floatingActionButton"
-            android:layout_width="94dp"
+            android:layout_width="150dp"
             android:layout_height="45dp"
             android:layout_marginTop="15dp"
             android:clickable="true"
@@ -90,7 +90,7 @@
             android:textColor="@color/white"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:background="@color/background_black"
+            android:background="@drawable/huhu"
             android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

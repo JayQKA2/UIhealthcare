@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.CountDownTimer
 import android.os.Handler
 import android.os.Message
+import android.util.Log
 import android.view.TextureView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -35,8 +36,8 @@ class OutputAnalyzer(
     private val chartDrawer: ChartDrawer = ChartDrawer(heartRateBar)
     private var store: MeasureStore? = null
 
-    private val measurementInterval = 45
-    private val measurementLength = 15000
+    private val measurementInterval = 33
+    private val measurementLength = 30000
     private val clipLength = 3500
 
     private var detectedValleys = 0
@@ -80,8 +81,12 @@ class OutputAnalyzer(
                     currentBitmap?.getPixels(pixels, 0, textureView.width, 0, 0, textureView.width, textureView.height)
 
                     for (pixelIndex in pixels.indices) {
-                        measurement += (pixels[pixelIndex] shr 16) and 0xff
+                        measurement += ((pixels[pixelIndex] shr 16) and 0xff)+  // Red
+                                ((pixels[pixelIndex] shr 8) and 0xff) +   // Green
+                                (pixels[pixelIndex] and 0xff)            // Blue
+                        measurement / 3
                     }
+                    measurement /= pixels.size
 
                     store?.add(measurement)
 
@@ -125,6 +130,7 @@ class OutputAnalyzer(
 
                 val averageHeartRate = 60f * (detectedValleys - 1) / (1f.coerceAtLeast((valleys.last() - valleys.first()) / 1000f))
 
+                Log.d("Average Heart Rate", averageHeartRate.toString())
                 val currentValue = String.format(
                     Locale.getDefault(),
                     "%.1f bpm",
@@ -134,7 +140,7 @@ class OutputAnalyzer(
                 sendMessage(HeartActivity.MESSAGE_UPDATE_FINAL, currentValue)
 
                 val sessionStartTime = ZonedDateTime.now(ZoneOffset.UTC)
-                val sessionEndTime = ZonedDateTime.now()
+                val sessionEndTime = ZonedDateTime.now().plusSeconds(45)
 
                 CoroutineScope(Dispatchers.Main).launch {
                     healthConnectManager.writeHeartRateSession(
@@ -152,17 +158,6 @@ class OutputAnalyzer(
 
     fun stop() {
         timer?.cancel()
-    }
-
-    fun getHeartRateData(): HeartData {
-        if (valleys.isEmpty()) {
-            return HeartData("N/A", "N/A", "N/A")
-        }
-        val averageHeartRate = 60f * (detectedValleys - 1) / (1f.coerceAtLeast((valleys.last() - valleys.first()) / 1000f))
-        val currentDate = ZonedDateTime.now().toLocalDate().toString()
-        val currentTime = ZonedDateTime.now().toLocalTime().toString()
-        val heartRateValue = String.format(Locale.getDefault(), "%.1f bpm", averageHeartRate)
-        return HeartData(currentDate, currentTime, heartRateValue)
     }
 
     private fun sendMessage(what: Int, message: Any) {
