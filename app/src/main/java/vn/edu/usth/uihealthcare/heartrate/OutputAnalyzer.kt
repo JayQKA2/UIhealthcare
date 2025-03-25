@@ -81,10 +81,10 @@ class OutputAnalyzer(
                     currentBitmap?.getPixels(pixels, 0, textureView.width, 0, 0, textureView.width, textureView.height)
 
                     for (pixelIndex in pixels.indices) {
-                        measurement += ((pixels[pixelIndex] shr 16) and 0xff)+  // Red
-                                ((pixels[pixelIndex] shr 8) and 0xff) +   // Green
-                                (pixels[pixelIndex] and 0xff)            // Blue
-                        measurement / 3
+                        val red = (pixels[pixelIndex] shr 16) and 0xff
+                        val green = (pixels[pixelIndex] shr 8) and 0xff
+                        val blue = pixels[pixelIndex] and 0xff
+                        measurement += (0.299 * red + 0.587 * green + 0.114 * blue).toInt()
                     }
                     measurement /= pixels.size
 
