@@ -59,6 +59,7 @@ class StepsSensorService : Service(), SensorEventListener {
         healthConnectManager = HealthConnectManager(applicationContext)
 
         lastRecordedDate = LocalDate.now()
+
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -70,8 +71,10 @@ class StepsSensorService : Service(), SensorEventListener {
 
         if (stepSensor != null) {
             sensorManager.registerListener(this, stepSensor, SensorManager.SENSOR_DELAY_NORMAL)
+            Log.e(TAG, " Step counter found ")
         } else if (accelSensor != null) {
             sensorManager.registerListener(this, accelSensor, SensorManager.SENSOR_DELAY_NORMAL)
+            Log.e(TAG, " Accelerometer found ")
             isHaveStepCounter = false
         } else {
             Log.e(TAG, "No compatible sensor found.")
@@ -93,8 +96,19 @@ class StepsSensorService : Service(), SensorEventListener {
     override fun onSensorChanged(event: SensorEvent) {
         checkForNewDay()
         when (event.sensor.type) {
-            Sensor.TYPE_STEP_COUNTER -> handleStepCounter(event)
-            Sensor.TYPE_ACCELEROMETER -> handleAccelerometer(event)
+            Sensor.TYPE_STEP_COUNTER -> {
+                Log.d(TAG, "Step Counter sensor detected. Steps: ${event.values[0]}")
+                handleStepCounter(event)
+            }
+
+            Sensor.TYPE_ACCELEROMETER -> {
+                Log.d(TAG, "Accelerometer sensor detected. Values: x=${event.values[0]}, y=${event.values[1]}, z=${event.values[2]}")
+                handleAccelerometer(event)
+            }
+
+            else -> {
+                Log.d(TAG, "Unknown sensor type: ${event.sensor.type}")
+            }
         }
     }
 
