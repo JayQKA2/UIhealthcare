@@ -15,6 +15,7 @@ import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.ServiceCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -34,6 +35,7 @@ class StepsSensorService : Service(), SensorEventListener {
     private val stepInterval = 400
     private var lastStepTime: Long = 0
     private var isHaveStepCounter = true
+    private var initialStepCount: Int = -1
     private lateinit var healthConnectManager: HealthConnectManager
     private val _stepCountFlow = MutableStateFlow(0)
     val stepCountFlow = _stepCountFlow.asStateFlow()
@@ -69,8 +71,8 @@ class StepsSensorService : Service(), SensorEventListener {
         val stepSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
         val accelSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
 
-        if (stepSensor != null) {
-            sensorManager.registerListener(this, stepSensor, SensorManager.SENSOR_DELAY_NORMAL)
+        if (stepSensor == null) {
+            sensorManager.registerListener(this, stepSensor, SensorManager.SENSOR_DELAY_UI)
             Log.e(TAG, " Step counter found ")
         } else if (accelSensor != null) {
             sensorManager.registerListener(this, accelSensor, SensorManager.SENSOR_DELAY_NORMAL)
@@ -97,12 +99,11 @@ class StepsSensorService : Service(), SensorEventListener {
         checkForNewDay()
         when (event.sensor.type) {
             Sensor.TYPE_STEP_COUNTER -> {
-                Log.d(TAG, "Step Counter sensor detected. Steps: ${event.values[0]}")
                 handleStepCounter(event)
             }
 
             Sensor.TYPE_ACCELEROMETER -> {
-                Log.d(TAG, "Accelerometer sensor detected. Values: x=${event.values[0]}, y=${event.values[1]}, z=${event.values[2]}")
+//                Log.d(TAG, "Accelerometer sensor detected. Values: x=${event.values[0]}, y=${event.values[1]}, z=${event.values[2]}")
                 handleAccelerometer(event)
             }
 
@@ -113,7 +114,14 @@ class StepsSensorService : Service(), SensorEventListener {
     }
 
     private fun handleStepCounter(event: SensorEvent) {
-        val steps = event.values[0].toInt()
+        val currentStepCount = event.values[0].toInt()
+
+        if (initialStepCount == -1) {
+            initialStepCount = currentStepCount
+        }
+
+        val steps = currentStepCount - initialStepCount
+
         sendStepCountToFragment(steps)
     }
 
@@ -149,7 +157,8 @@ class StepsSensorService : Service(), SensorEventListener {
     private fun sendStepCountToFragment(stepCount: Int) {
         val intent = Intent("vn.edu.usth.uihealthcare.STEP_COUNT_UPDATE")
         intent.putExtra("step_count", stepCount)
-        sendBroadcast(intent)
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
+        Log.d(TAG, "Sending broadcast: step_count = $stepCount")
         NotificationsHelper.updateNotification(this, stepCount)
     }
 
@@ -172,6 +181,7 @@ class StepsSensorService : Service(), SensorEventListener {
             Log.d(TAG, "New day detected! Resetting step count.")
             lastRecordedDate = currentDate
             stepCount = 0
+            initialStepCount = -1
             _stepCountFlow.value = 0
             sendStepCountToFragment(stepCount)
         }
