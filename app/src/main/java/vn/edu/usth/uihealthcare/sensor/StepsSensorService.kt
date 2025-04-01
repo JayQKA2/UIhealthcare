@@ -189,3 +189,5 @@ class StepsSensorService : Service(), SensorEventListener {
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
 }
+
+
