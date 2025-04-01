@@ -18,6 +18,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -31,6 +32,7 @@ import java.time.Instant
 import java.time.ZonedDateTime
 import java.time.ZoneId
 import vn.edu.usth.uihealthcare.data.HeartData
+import java.time.temporal.ChronoUnit
 
 class HeartActivity : AppCompatActivity() {
     private var analyzer: OutputAnalyzer? = null
@@ -87,14 +89,13 @@ class HeartActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_heart)
 
-        val icon1: ImageView = findViewById(R.id.icon1)
+        val icon1: CardView = findViewById(R.id.heart_is)
         icon1.setOnClickListener {
             fetchHeartRate()
         }
 
         toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
-        heart_value = findViewById(R.id.heartnumber)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         checkpermission()
 
@@ -170,7 +171,7 @@ class HeartActivity : AppCompatActivity() {
                         val pulse = record.samples.first().beatsPerMinute
                         val zonedDateTime = record.startTime.atZone(ZoneId.systemDefault())
                         val date = zonedDateTime.toLocalDate().toString()
-                        val time = zonedDateTime.toLocalTime().toString()
+                        val time = zonedDateTime.toLocalTime().truncatedTo(ChronoUnit.SECONDS).toString()
                         HeartData(date, time, "$pulse bpm")
                     }
 

@@ -15,6 +15,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
@@ -48,7 +49,7 @@ class StepsActivity : AppCompatActivity() {
         }
 
         val filter = IntentFilter("vn.edu.usth.uihealthcare.STEP_COUNT_UPDATE")
-        registerReceiver(stepReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+        LocalBroadcastManager.getInstance(this).registerReceiver(stepReceiver, filter)
 
         calendarView.setOnDateChangeListener { _, _, month, dayOfMonth ->
             val selectedDate = String.format("%02d/%02d", dayOfMonth, month + 1)
@@ -74,8 +75,10 @@ class StepsActivity : AppCompatActivity() {
 
     private val stepReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
+            Log.d("StepsActivity", "Received broadcast")
             if (intent?.action == "vn.edu.usth.uihealthcare.STEP_COUNT_UPDATE") {
                 val stepCount = intent.getIntExtra("step_count", 0)
+                Log.d("StepsAC", "onReceive: $stepCount ")
                 updateUI(stepCount)
             }
         }
@@ -85,6 +88,7 @@ class StepsActivity : AppCompatActivity() {
     private fun updateUI(steps: Int) {
         currentSteps = steps
         stepsTextView.text = "$steps steps"
+        Log.d("StepsAC", "updateUI: $steps ")
         updateChart(steps)
     }
 
@@ -105,6 +109,7 @@ class StepsActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        unregisterReceiver(stepReceiver)
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(stepReceiver)
+
     }
 }

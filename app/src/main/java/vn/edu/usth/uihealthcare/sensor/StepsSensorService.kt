@@ -15,11 +15,13 @@ import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.ServiceCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import vn.edu.usth.uihealthcare.noti.NotificationsHelper
 import vn.edu.usth.uihealthcare.utils.HealthConnectManager
+import java.time.LocalDate
 import java.time.ZonedDateTime
 import kotlin.math.sqrt
 
@@ -29,15 +31,18 @@ class StepsSensorService : Service(), SensorEventListener {
     private lateinit var sensorManager: SensorManager
     private var stepCount = 0
     private var previousMagnitude = 0.0
-    private val threshold = 3.5
+    private val threshold = 5.0
     private val stepInterval = 400
     private var lastStepTime: Long = 0
     private var isHaveStepCounter = true
+    private var initialStepCount: Int = -1
     private lateinit var healthConnectManager: HealthConnectManager
     private val _stepCountFlow = MutableStateFlow(0)
     val stepCountFlow = _stepCountFlow.asStateFlow()
 
     private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
+    private var lastRecordedDate: LocalDate = LocalDate.now()
 
     companion object {
         private const val TAG = "StepsSensorService"
@@ -54,6 +59,9 @@ class StepsSensorService : Service(), SensorEventListener {
         Log.d(TAG, "Service onCreate() called.")
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         healthConnectManager = HealthConnectManager(applicationContext)
+
+        lastRecordedDate = LocalDate.now()
+
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -63,10 +71,12 @@ class StepsSensorService : Service(), SensorEventListener {
         val stepSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
         val accelSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
 
-        if (stepSensor != null) {
-            sensorManager.registerListener(this, stepSensor, SensorManager.SENSOR_DELAY_NORMAL)
+        if (stepSensor == null) {
+            sensorManager.registerListener(this, stepSensor, SensorManager.SENSOR_DELAY_UI)
+            Log.e(TAG, " Step counter found ")
         } else if (accelSensor != null) {
             sensorManager.registerListener(this, accelSensor, SensorManager.SENSOR_DELAY_NORMAL)
+            Log.e(TAG, " Accelerometer found ")
             isHaveStepCounter = false
         } else {
             Log.e(TAG, "No compatible sensor found.")
@@ -86,16 +96,32 @@ class StepsSensorService : Service(), SensorEventListener {
     override fun onBind(intent: Intent?): IBinder = binder
 
     override fun onSensorChanged(event: SensorEvent) {
+        checkForNewDay()
         when (event.sensor.type) {
-            Sensor.TYPE_STEP_COUNTER -> handleStepCounter(event)
-            Sensor.TYPE_ACCELEROMETER -> handleAccelerometer(event)
+            Sensor.TYPE_STEP_COUNTER -> {
+                handleStepCounter(event)
+            }
+
+            Sensor.TYPE_ACCELEROMETER -> {
+//                Log.d(TAG, "Accelerometer sensor detected. Values: x=${event.values[0]}, y=${event.values[1]}, z=${event.values[2]}")
+                handleAccelerometer(event)
+            }
+
+            else -> {
+                Log.d(TAG, "Unknown sensor type: ${event.sensor.type}")
+            }
         }
     }
 
-    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
-
     private fun handleStepCounter(event: SensorEvent) {
-        val steps = event.values[0].toInt()
+        val currentStepCount = event.values[0].toInt()
+
+        if (initialStepCount == -1) {
+            initialStepCount = currentStepCount
+        }
+
+        val steps = currentStepCount - initialStepCount
+
         sendStepCountToFragment(steps)
     }
 
@@ -116,12 +142,23 @@ class StepsSensorService : Service(), SensorEventListener {
                 sendStepCountToFragment(stepCount)
             }
         }
+
+        val startTime = ZonedDateTime.now()
+        val endTime = startTime.plusMinutes(1)
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                healthConnectManager.writeStepsInput(startTime, endTime, stepCount.toLong())
+            } catch (e: Exception) {
+                Log.e(TAG, "Error writing steps data: ${e.message}")
+            }
+        }
     }
 
     private fun sendStepCountToFragment(stepCount: Int) {
         val intent = Intent("vn.edu.usth.uihealthcare.STEP_COUNT_UPDATE")
         intent.putExtra("step_count", stepCount)
-        sendBroadcast(intent)
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
+        Log.d(TAG, "Sending broadcast: step_count = $stepCount")
         NotificationsHelper.updateNotification(this, stepCount)
     }
 
@@ -137,4 +174,20 @@ class StepsSensorService : Service(), SensorEventListener {
             startForeground(NOTIFICATION_ID, notification)
         }
     }
+
+    private fun checkForNewDay() {
+        val currentDate = LocalDate.now()
+        if (currentDate.isAfter(lastRecordedDate)) {
+            Log.d(TAG, "New day detected! Resetting step count.")
+            lastRecordedDate = currentDate
+            stepCount = 0
+            initialStepCount = -1
+            _stepCountFlow.value = 0
+            sendStepCountToFragment(stepCount)
+        }
+    }
+
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
 }
+
+
